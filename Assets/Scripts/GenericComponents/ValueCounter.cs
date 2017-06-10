@@ -31,9 +31,7 @@ public class ValueCounter : MonoBehaviour {
         get
         {
             if (!hasBeenInitialized)
-            {
                 HandleInitialization();
-            }
 
             return (RoundToInt) ? Mathf.Round(currentValue) : currentValue;
         }
@@ -41,9 +39,7 @@ public class ValueCounter : MonoBehaviour {
         protected set
         {
             if (!hasBeenInitialized)
-            {
                 HandleInitialization();
-            }
 
             if (currentValue != value)
             {
@@ -76,9 +72,7 @@ public class ValueCounter : MonoBehaviour {
         ValueCounterEvent handler = ValueChanged;
 
         if (handler != null)
-        {
-            handler();
-        }            
+            handler();       
     }
 
     protected virtual void HandleInitialization()

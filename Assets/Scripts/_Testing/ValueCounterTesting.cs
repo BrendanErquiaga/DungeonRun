@@ -12,10 +12,6 @@ public class ValueCounterTesting : MonoBehaviour
         hc.Died += itDied;
     }
 
-    void FixedUpdate () {
-        hc.SubtractFromValue(1);
-	}
-
     void handleValueChanged()
     {
         Debug.Log("Value Changed: Current: " + hc.CurrentValue.ToString() + "| Starting: " + hc.StartingValue.ToString());
