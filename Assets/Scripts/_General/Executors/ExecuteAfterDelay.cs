@@ -3,12 +3,12 @@
 public class ExecuteAfterDelay : Executor
 {
     [SerializeField]
-    private int delay;
+    private float delay;
 
     [SerializeField]
     private bool initOnStart = true;
 
-    public int Delay
+    public float Delay
     {
         get
         {
@@ -44,7 +44,7 @@ public class ExecuteAfterDelay : Executor
 
     /// <param name="delay">Delay in seconds</param>
     /// <param name="startDelayImmediately">If true starts the delay</param>
-    public virtual void InitExecuteAfterDelay(int delay = 5, bool startDelayImmediately = true)
+    public virtual void InitExecuteAfterDelay(float delay = 5, bool startDelayImmediately = true)
     {
         this.Delay = delay;
 
