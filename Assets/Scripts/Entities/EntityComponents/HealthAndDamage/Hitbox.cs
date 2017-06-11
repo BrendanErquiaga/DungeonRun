@@ -8,14 +8,16 @@ public class Hitbox : MonoBehaviour
     private bool singleHitHitbox = true;
 
     [SerializeField]
-    private float timeDelayBetweenSameTargetHit = 99;
+    private bool disabledCollisionOnHit = false;
+
+    [SerializeField]
+    private bool enableVisualsWithCollision = false;    
+
+    [SerializeField]
+    private float timeDelayBetweenSameTargetHit = 1;
 
     private List<ColliderWithTimestamp> collidersHitThisAttack = new List<ColliderWithTimestamp>();
 
-    [SerializeField]
-    private bool enableVisualsWithCollision = false;
-
-    private bool initialized = false;
     private bool destroyedMessageSent = false;
 
     public bool SingleHitHitbox
@@ -70,6 +72,19 @@ public class Hitbox : MonoBehaviour
         }
     }
 
+    public bool DisabledCollisionOnHit
+    {
+        get
+        {
+            return disabledCollisionOnHit;
+        }
+
+        set
+        {
+            disabledCollisionOnHit = value;
+        }
+    }
+
     public delegate void HitboxCollidedEvent(Collider colliderHit);
     public event HitboxCollidedEvent AttackHit;
     public delegate void HitboxEvent();
@@ -94,14 +109,6 @@ public class Hitbox : MonoBehaviour
         destroyedMessageSent = true;
     }
 
-    protected virtual void Start()
-    {
-        if (initialized)
-            return;
-
-        DisableCollision();
-    }
-
     protected virtual void OnTriggerEnter(Collider colliderHit)
     {
         if (CollidersCanHit(colliderHit))
@@ -123,7 +130,7 @@ public class Hitbox : MonoBehaviour
 
         collidersHitThisAttack.Add(new ColliderWithTimestamp(colliderHit, Time.timeSinceLevelLoad));
 
-        if (SingleHitHitbox)
+        if (SingleHitHitbox && DisabledCollisionOnHit)
             DisableCollision();
     }
 
@@ -134,10 +141,9 @@ public class Hitbox : MonoBehaviour
 
     public void EnableCollision()
     {
-        initialized = true;
         GetComponent<Collider>().enabled = true;
 
-        if (GetComponent<Renderer>())
+        if (EnableVisualsWithCollision && GetComponent<Renderer>())
             GetComponent<Renderer>().enabled = true;
     }
 
@@ -145,7 +151,7 @@ public class Hitbox : MonoBehaviour
     {
         GetComponent<Collider>().enabled = false;
 
-        if (GetComponent<Renderer>())
+        if (EnableVisualsWithCollision && GetComponent<Renderer>())
             GetComponent<Renderer>().enabled = false;
 
         collidersHitThisAttack.Clear();
