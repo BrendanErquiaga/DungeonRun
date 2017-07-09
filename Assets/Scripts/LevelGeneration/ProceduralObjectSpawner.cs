@@ -4,19 +4,26 @@ using UnityEngine;
 
 public class ProceduralObjectSpawner : MonoBehaviour
 {
-    public List<Transform> spawnLocations;
-    private ShuffleBag<Transform> spawnLocationShufflebag;
-
     public ProceduralObjectBagGenerator bagGenerator;
     
     public bool addForceToObjectsOnSpawn = false;
     public float randomForce = 10f;
 
+    [SerializeField]
+    protected List<Transform> spawnLocations;
+
+    protected GameObject previouslySpawnedObject;
     private int spawnedItemCount = 0;
+    private ShuffleBag<Transform> spawnLocationShufflebag;
 
     private void Awake()
     {
-        spawnLocationShufflebag = new ShuffleBag<Transform>(spawnLocations, true);
+        if(spawnLocations.Count > 0) {
+            spawnLocationShufflebag = new ShuffleBag<Transform>(spawnLocations, true);
+        } else
+        {
+            spawnLocationShufflebag = new ShuffleBag<Transform>(new List<Transform>());
+        }        
     }
 
     protected virtual void SpawnObject()
@@ -27,15 +34,15 @@ public class ProceduralObjectSpawner : MonoBehaviour
             return;
         }
 
-        Transform spawnLocation = GetSpawnLocation();
+        Vector3 spawnLocation = GetSpawnLocation();
 
         GameObject objectToInstantiate = bagGenerator.objectBag.GetNextItemInBag();
 
-        GameObject instantiatedObject = GameObject.Instantiate(objectToInstantiate, spawnLocation.position, objectToInstantiate.transform.rotation, this.transform);
+        previouslySpawnedObject = GameObject.Instantiate(objectToInstantiate, spawnLocation, objectToInstantiate.transform.rotation, this.transform);
 
         if(addForceToObjectsOnSpawn)
         {
-            AddForceToObject(instantiatedObject);
+            AddForceToObject(previouslySpawnedObject);
         }
 
         spawnedItemCount++;
@@ -57,14 +64,14 @@ public class ProceduralObjectSpawner : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    protected virtual Transform GetSpawnLocation()
+    protected virtual Vector3 GetSpawnLocation()
     {
         if(spawnLocations.Count == 0 && spawnLocationShufflebag.BagEmpty)
         {
-            return this.transform;
+            return this.transform.position;
         } else
         {
-            return spawnLocationShufflebag.GetNextItemInBag();
+            return spawnLocationShufflebag.GetNextItemInBag().position;
         }
     }
 }

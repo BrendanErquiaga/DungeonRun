@@ -14,10 +14,6 @@ public class ProceduralObjectFastSpawner : ProceduralObjectSpawner
 
     protected virtual void StartSpawningObjects()
     {
-        Debug.Log("Bag ready?: " + bagGenerator.bagIsPrepared);
-        Debug.Log("Bag size?: " + bagGenerator.objectBag.CurrentCount);
-        float startTime = Time.deltaTime;
-
         while (!bagGenerator.objectBag.BagEmpty)
         {
             SpawnObject();
