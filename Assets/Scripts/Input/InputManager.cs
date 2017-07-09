@@ -29,9 +29,13 @@ public class InputManager : MonoBehaviour
     Direction leftAxisLastDirectionPressed;
     Direction rightAxisLastDirectionPressed;
 
-    Vector2 leftAxisInputVecot;
-    public Vector2 LeftAxisInputVector { get { return leftAxisInputVecot; } set { leftAxisInputVecot = value; } }
+    Vector2 leftAxisInputVector;
+    public Vector2 LeftAxisInputVector { get { return leftAxisInputVector; } set { leftAxisInputVector = value; } }
+    public string leftAxisHorizontalName = "Horizontal";
+    public string leftAxisVerticalName = "Vertical";
     Vector2 rightAxisInputVector;
+    public string rightAxisHorizontalName = "CameraStickHorizontal";
+    public string rightAxisVerticalName = "CameraStickVertical";
     public Vector2 RightAxisInputVector { get { return rightAxisInputVector; } set { rightAxisInputVector = value; } }
 
     protected float AxisEdgeThreshold
@@ -51,8 +55,8 @@ public class InputManager : MonoBehaviour
     #region Input Delegates
     public delegate void InputPressed();
     public event InputPressed Action1ButtonDown;
-    public event InputPressed ActionButtonHeld;
-    public event InputPressed ActionButtonReleased;
+    public event InputPressed Action1ButtonHeld;
+    public event InputPressed Action1ButtonReleased;
 
     public event InputPressed Action2ButtonDown;
     public event InputPressed Action2ButtonHeld;
@@ -89,271 +93,225 @@ public class InputManager : MonoBehaviour
     public event InputPressed ButtonDown;
     public event InputPressed ButtonHeld;
     public event InputPressed ButtonReleased;
-
-    public event InputPressed ActionButtonDown;
-    public event InputPressed ActionButtonHeld;
-    public event InputPressed ActionButtonReleased;
-
-    public event InputPressed NonActionButtonPressed;
     #endregion
 
     #region Event Invokers
-    public virtual void OnActionButtonDown()
-    {
-        InputPressed handler = ActionButtonDown;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnAction1ButtonDown()
+    //{
+    //    InputPressed handler = Action1ButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnActionButtonHeld()
-    {
-        InputPressed handler = ActionButtonHeld;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnAction1ButtonHeld()
+    //{
+    //    InputPressed handler = Action1ButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnActionButtonReleased()
-    {
-        InputPressed handler = ActionButtonReleased;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnAction1ButtonReleased()
+    //{
+    //    InputPressed handler = Action1ButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnAction2ButtonDown()
-    {
-        InputPressed handler = Action2ButtonDown;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnAction2ButtonDown()
+    //{
+    //    InputPressed handler = Action2ButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnAction2ButtonHeld()
-    {
-        InputPressed handler = Action2ButtonHeld;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnAction2ButtonHeld()
+    //{
+    //    InputPressed handler = Action2ButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnSpecialButtonReleased()
-    {
-        InputPressed handler = Action2ButtonReleased;
-        if (handler != null)
-            handler();
+    //public virtual void OnAction2ButtonReleased()
+    //{
+    //    InputPressed handler = Action2ButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonReleased();
-    }
+    //public virtual void OnAction3ButtonDown()
+    //{
+    //    InputPressed handler = Action3ButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnTileButtonDown()
-    {
-        InputPressed handler = Action3ButtonDown;
-        if (handler != null)
-            handler();
+    //public virtual void OnAction3ButtonHeld()
+    //{
+    //    InputPressed handler = Action3ButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonDown();
-    }
+    //public virtual void OnAction3ButtonReleased()
+    //{
+    //    InputPressed handler = Action3ButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnTileButtonHeld()
-    {
-        InputPressed handler = Action3ButtonHeld;
-        if (handler != null)
-            handler();
+    //public virtual void OnAction4ButtonDown()
+    //{
+    //    InputPressed handler = Action4ButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonHeld();
-    }
+    //public virtual void OnAction4ButtonHeld()
+    //{
+    //    InputPressed handler = Action4ButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnTileButtonReleased()
-    {
-        InputPressed handler = Action3ButtonReleased;
-        if (handler != null)
-            handler();
+    //public virtual void OnAction4ButtonReleased()
+    //{
+    //    InputPressed handler = Action4ButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonReleased();
-    }
+    //public virtual void OnPauseButtonDown()
+    //{
+    //    InputPressed handler = PauseButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnCameraLockButtonDown()
-    {
-        InputPressed handler = Action4ButtonDown;
-        if (handler != null)
-            handler();
+    //public virtual void OnPauseButtonHeld()
+    //{
+    //    InputPressed handler = PauseButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonDown();
-    }
+    //public virtual void OnPauseButtonReleased()
+    //{
+    //    InputPressed handler = PauseButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnCameraLockButtonHeld()
-    {
-        InputPressed handler = Action4ButtonHeld;
-        if (handler != null)
-            handler();
+    //public virtual void OnSelectButtonDown()
+    //{
+    //    InputPressed handler = SelectButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonHeld();
-    }
+    //public virtual void OnSelectButtonHeld()
+    //{
+    //    InputPressed handler = SelectButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnCameraLockButtonReleased()
-    {
-        InputPressed handler = Action4ButtonReleased;
-        if (handler != null)
-            handler();
+    //public virtual void OnSelectButtonReleased()
+    //{
+    //    InputPressed handler = SelectButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-        OnNonInteractButtonReleased();
-    }
-
-    public virtual void OnAlertButtonDown()
-    {
-        InputPressed handler = PauseButtonDown;
-        if (handler != null)
-            handler();
-
-        OnNonInteractButtonDown();
-    }
-
-    public virtual void OnAlertButtonHeld()
-    {
-        InputPressed handler = PauseButtonHeld;
-        if (handler != null)
-            handler();
-
-        OnNonInteractButtonHeld();
-    }
-
-    public virtual void OnAlertButtonReleased()
-    {
-        InputPressed handler = PauseButtonReleased;
-        if (handler != null)
-            handler();
-
-        OnNonInteractButtonReleased();
-    }
-
-    public virtual void OnSwapClassButtonDown()
-    {
-        InputPressed handler = SelectButtonDown;
-        if (handler != null)
-            handler();
-
-        OnNonInteractButtonDown();
-    }
-
-    public virtual void OnSwapClassButtonHeld()
-    {
-        InputPressed handler = SelectButtonHeld;
-        if (handler != null)
-            handler();
-
-        OnNonInteractButtonHeld();
-    }
-
-    public virtual void OnSwapClassButtonReleased()
-    {
-        InputPressed handler = SelectButtonReleased;
-        if (handler != null)
-            handler();
-
-        OnNonInteractButtonReleased();
-    }
-
-    public virtual void OnMovementAxisChanged()
+    public virtual void OnLeftAxisChanged()
     {
         InputPressed handler = LeftAxisChanged;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnMovementAxisLeftDirectionPressed()
+    public virtual void OnLeftAxisLeftDirectionPressed()
     {
         InputPressed handler = LeftAxisLeftDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnMovementAxisRightDirectionPressed()
+    public virtual void OnLeftAxisRightDirectionPressed()
     {
         InputPressed handler = LeftAxisRightDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnMovementAxisUpDirectionPressed()
+    public virtual void OnLeftAxisUpDirectionPressed()
     {
         InputPressed handler = LeftAxisUpDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnMovementAxisDownDirectionPressed()
+    public virtual void OnLeftAxisDownDirectionPressed()
     {
         InputPressed handler = LeftAxisDownDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnCameraAxisChanged()
+    public virtual void OnRightAxisChanged()
     {
         InputPressed handler = RightAxisChanged;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnStartButtonDown()
+    public virtual void OnRightAxisLeftDirectionPressed()
     {
-        InputPressed handler = StartButtonDown;
+        InputPressed handler = RightAxisLeftDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnStartButtonHeld()
+    public virtual void OnRightAxisRightDirectionPressed()
     {
-        InputPressed handler = StartButtonHeld;
+        InputPressed handler = RightAxisRightDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnStartButtonReleased()
+    public virtual void OnRightAxisUpDirectionPressed()
     {
-        InputPressed handler = StartButtonReleased;
+        InputPressed handler = RightAxisUpDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnInteractButtonDown()
+    public virtual void OnRightAxisDownDirectionPressed()
     {
-        InputPressed handler = InteractButtonDown;
+        InputPressed handler = RightAxisDownDirectionPressed;
         if (handler != null)
             handler();
     }
 
-    public virtual void OnInteractButtonHeld()
-    {
-        InputPressed handler = InteractButtonHeld;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnButtonDown()
+    //{
+    //    InputPressed handler = ButtonDown;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    public virtual void OnInteractButtonReleased()
-    {
-        InputPressed handler = InteractButtonReleased;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnButtonHeld()
+    //{
+    //    InputPressed handler = ButtonHeld;
+    //    if (handler != null)
+    //        handler();
+    //}
 
-    protected virtual void OnNonInteractButtonDown()
-    {
-        InputPressed handler = NonInteractButtonDown;
-        if (handler != null)
-            handler();
-    }
-
-    protected virtual void OnNonInteractButtonHeld()
-    {
-        InputPressed handler = NonInteractButtonHeld;
-        if (handler != null)
-            handler();
-    }
-
-    protected virtual void OnNonInteractButtonReleased()
-    {
-        InputPressed handler = NonInteractButtonReleased;
-        if (handler != null)
-            handler();
-    }
+    //public virtual void OnButtonReleased()
+    //{
+    //    InputPressed handler = ButtonReleased;
+    //    if (handler != null)
+    //        handler();
+    //}
     #endregion
 
     #region Methods
@@ -364,146 +322,126 @@ public class InputManager : MonoBehaviour
 
     private void CheckInput()
     {
-        CheckAxisInput_PC();
+        CheckAxisInput();
 
-        CheckActionInput_PC();
+        CheckButtonInput();
     }
 
-    #region PC Axis Input
-    private void CheckAxisInput_PC()
+    #region Axis Input
+    private void CheckAxisInput()
     {
-        CheckMotionInput();
-        CheckCameraMotionInput();
+        CheckLeftAxisInput();
+        CheckRightAxisInput();
     }
 
-    private void CheckMotionInput()
+    private void CheckLeftAxisInput()
     {
-        leftAxisInputVecot = new Vector2(Input.GetAxis("Horizontal" + playerID), Input.GetAxis("Vertical" + playerID));
+        leftAxisInputVector = new Vector2(Input.GetAxis(leftAxisHorizontalName), Input.GetAxis(leftAxisVerticalName));
 
-        OnMovementAxisChanged();
-        CheckMotionThreshold();
+        OnLeftAxisChanged();
+        CheckLeftAxisDirection();
     }
 
-    private void CheckCameraMotionInput()
+    private void CheckRightAxisInput()
     {
-        cameraInputVector = new Vector2(Input.GetAxis("CameraStickHorizontal" + playerID), Input.GetAxis("CameraStickVertical" + playerID));
+        rightAxisInputVector = new Vector2(Input.GetAxis(rightAxisHorizontalName), Input.GetAxis(rightAxisVerticalName));
 
-        OnCameraAxisChanged();
+        OnRightAxisChanged();
+        CheckRightAxisDirection();
     }
     #endregion
 
-    #region PC Action Input
-    private void CheckActionInput_PC()
+    #region Button Input
+    private void CheckButtonInput()
     {
-        CheckSwapClassInput();
+        CheckAction1ButtonInput();
 
-        CheckCameraLockInput();
+        CheckAction2ButtonInput();
 
-        CheckSpecialInput();
+        CheckAction3ButtonInput();
 
-        CheckTileAbilityInput();
+        CheckAction4ButtonInput();
 
-        CheckAttackInput();
+        CheckPauseButtonInput();
 
-        CheckAlertInput();
-
-        CheckStartInput();
-
-        CheckInteractInput();
+        CheckSelectButtonInput();
     }
 
-    private void CheckSwapClassInput()
+    private void CheckAction1ButtonInput()
     {
-        CheckGenericInputDown("SwapClass", SelectButtonDown, true);
-        CheckGenericInputHeld("SwapClass", SelectButtonHeld, true);
-        CheckGenericInputReleased("SwapClass", SelectButtonReleased, true);
+        CheckGenericInputDown("Action1", Action1ButtonDown);
+        CheckGenericInputHeld("Action1", Action1ButtonHeld);
+        CheckGenericInputReleased("Action1", Action1ButtonReleased);
     }
 
-    private void CheckCameraLockInput()
+    private void CheckAction2ButtonInput()
     {
-        CheckGenericInputDown("CameraLock", Action4ButtonDown, true);
-        CheckGenericInputHeld("CameraLock", Action4ButtonHeld, true);
-        CheckGenericInputReleased("CameraLock", Action4ButtonReleased, true);
+        CheckGenericInputDown("Action2", Action2ButtonDown);
+        CheckGenericInputHeld("Action2", Action2ButtonHeld);
+        CheckGenericInputReleased("Action2", Action2ButtonReleased);
     }
 
-    private void CheckSpecialInput()
+    private void CheckAction3ButtonInput()
     {
-        CheckGenericInputDown("Special", Action2ButtonDown, true);
-        CheckGenericInputHeld("Special", Action2ButtonHeld, true);
-        CheckGenericInputReleased("Special", Action2ButtonReleased, true);
+        CheckGenericInputDown("Action3", Action3ButtonDown);
+        CheckGenericInputHeld("Action3", Action3ButtonHeld);
+        CheckGenericInputReleased("Action3", Action3ButtonReleased);
     }
 
-    private void CheckTileAbilityInput()
+    private void CheckAction4ButtonInput()
     {
-        CheckGenericInputDown("TileAbility", Action3ButtonDown, true);
-        CheckGenericInputHeld("TileAbility", Action3ButtonHeld, true);
-        CheckGenericInputReleased("TileAbility", Action3ButtonReleased, true);
+        CheckGenericInputDown("Action4", Action4ButtonDown);
+        CheckGenericInputHeld("Action4", Action4ButtonHeld);
+        CheckGenericInputReleased("Action4", Action4ButtonReleased);
     }
 
-    private void CheckAlertInput()
+    private void CheckPauseButtonInput()
     {
-        CheckGenericInputDown("Alert", PauseButtonDown);
-        CheckGenericInputHeld("Alert", PauseButtonHeld);
-        CheckGenericInputReleased("Alert", PauseButtonReleased);
+        CheckGenericInputDown("Pause", PauseButtonDown);
+        CheckGenericInputHeld("Pause", PauseButtonHeld);
+        CheckGenericInputReleased("Pause", PauseButtonReleased);
     }
 
-    private void CheckAttackInput()
+    private void CheckSelectButtonInput()
     {
-        CheckGenericInputDown("Attack", ActionButtonDown, true);
-        CheckGenericInputHeld("Attack", ActionButtonHeld, true);
-        CheckGenericInputReleased("Attack", ActionButtonReleased, true);
+        CheckGenericInputDown("Select", SelectButtonDown);
+        CheckGenericInputHeld("Select", SelectButtonHeld);
+        CheckGenericInputReleased("Select", SelectButtonReleased);
     }
 
-    private void CheckStartInput()
+    private void CheckGenericInputDown(string buttonName, InputPressed eventToCall)
     {
-        CheckGenericInputDown("Menu", StartButtonDown);
-        CheckGenericInputHeld("Menu", StartButtonHeld);
-        CheckGenericInputReleased("Menu", StartButtonReleased);
-    }
-
-    private void CheckInteractInput()
-    {
-        CheckGenericInputDown("Interact", InteractButtonDown);
-        CheckGenericInputHeld("Interact", InteractButtonHeld);
-        CheckGenericInputReleased("Interact", InteractButtonReleased);
-    }
-
-    private void CheckGenericInputDown(string buttonName, InputPressed eventToCall, bool handleNonInteracButtonEvent = false)
-    {
-        if (Input.GetButtonDown(buttonName + playerID))
+        if (Input.GetButtonDown(buttonName))
         {
             CallInputEvent(eventToCall);
 
-            if (handleNonInteracButtonEvent)
-                OnNonInteractButtonDown();
+            CallInputEvent(ButtonDown);
         }
     }
 
-    private void CheckGenericInputHeld(string buttonName, InputPressed eventToCall, bool handleNonInteracButtonEvent = false)
+    private void CheckGenericInputHeld(string buttonName, InputPressed eventToCall)
     {
-        if (Input.GetButton(buttonName + playerID))
+        if (Input.GetButton(buttonName))
         {
             CallInputEvent(eventToCall);
 
-            if (handleNonInteracButtonEvent)
-                OnNonInteractButtonHeld();
+            CallInputEvent(ButtonHeld);
         }
     }
 
-    private void CheckGenericInputReleased(string buttonName, InputPressed eventToCall, bool handleNonInteracButtonEvent = false)
+    private void CheckGenericInputReleased(string buttonName, InputPressed eventToCall)
     {
-        if (Input.GetButtonUp(buttonName + playerID))
+        if (Input.GetButtonUp(buttonName))
         {
             CallInputEvent(eventToCall);
 
-            if (handleNonInteracButtonEvent)
-                OnNonInteractButtonReleased();
+            CallInputEvent(ButtonReleased);
         }
     }
     #endregion
 
     #region Generic Axis Functions
-    private void CheckMotionThreshold()
+    private void CheckLeftAxisDirection()
     {
         if (leftAxisLastDirectionPressed != Direction.None)
             CheckAxisForReset(LeftAxisInputVector, ref leftAxisLastDirectionPressed);
@@ -532,16 +470,59 @@ public class InputManager : MonoBehaviour
         switch (leftAxisLastDirectionPressed)
         {
             case Direction.Left:
-                OnMovementAxisLeftDirectionPressed();
+                OnLeftAxisLeftDirectionPressed();
                 break;
             case Direction.Right:
-                OnMovementAxisRightDirectionPressed();
+                OnLeftAxisRightDirectionPressed();
                 break;
             case Direction.Up:
-                OnMovementAxisUpDirectionPressed();
+                OnLeftAxisUpDirectionPressed();
                 break;
             case Direction.Down:
-                OnMovementAxisDownDirectionPressed();
+                OnLeftAxisDownDirectionPressed();
+                break;
+        }
+    }
+
+    private void CheckRightAxisDirection()
+    {
+        if (rightAxisLastDirectionPressed != Direction.None)
+            CheckAxisForReset(RightAxisInputVector, ref rightAxisLastDirectionPressed);
+        else
+        {
+            if (RightAxisInputVector.x < -AxisEdgeThreshold)
+                ChangeRightAxisDirectionPressed(Direction.Left);
+            else if (RightAxisInputVector.x > AxisEdgeThreshold)
+                ChangeRightAxisDirectionPressed(Direction.Right);
+            else if (RightAxisInputVector.y > AxisEdgeThreshold)
+                ChangeRightAxisDirectionPressed(Direction.Up);
+            else if (RightAxisInputVector.y < -AxisEdgeThreshold)
+                ChangeRightAxisDirectionPressed(Direction.Down);
+        }
+    }
+
+    private void ChangeRightAxisDirectionPressed(Direction directionPressed)
+    {
+        rightAxisLastDirectionPressed = directionPressed;
+
+        FireRightAxisDirectionEvent();
+    }
+
+    private void FireRightAxisDirectionEvent()
+    {
+        switch (rightAxisLastDirectionPressed)
+        {
+            case Direction.Left:
+                OnRightAxisLeftDirectionPressed();
+                break;
+            case Direction.Right:
+                OnRightAxisRightDirectionPressed();
+                break;
+            case Direction.Up:
+                OnRightAxisUpDirectionPressed();
+                break;
+            case Direction.Down:
+                OnRightAxisDownDirectionPressed();
                 break;
         }
     }
@@ -552,24 +533,24 @@ public class InputManager : MonoBehaviour
         {
             case Direction.Left:
                 if (inputVector.x > -AxisEdgeThreshold)
-                    ResetLeftAxisDirectionPressed(ref directionToCheck);
+                    ResetAxisDirectionPressed(ref directionToCheck);
                 break;
             case Direction.Right:
                 if (inputVector.x < AxisEdgeThreshold)
-                    ResetLeftAxisDirectionPressed(ref directionToCheck);
+                    ResetAxisDirectionPressed(ref directionToCheck);
                 break;
             case Direction.Up:
                 if (inputVector.y < AxisEdgeThreshold)
-                    ResetLeftAxisDirectionPressed(ref directionToCheck);
+                    ResetAxisDirectionPressed(ref directionToCheck);
                 break;
             case Direction.Down:
                 if (inputVector.y > -AxisEdgeThreshold)
-                    ResetLeftAxisDirectionPressed(ref directionToCheck);
+                    ResetAxisDirectionPressed(ref directionToCheck);
                 break;
         }
     }
 
-    private void ResetLeftAxisDirectionPressed(ref Direction directionToReset)
+    private void ResetAxisDirectionPressed(ref Direction directionToReset)
     {
         directionToReset = Direction.None;
     }
