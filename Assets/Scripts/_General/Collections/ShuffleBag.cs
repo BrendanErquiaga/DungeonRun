@@ -26,14 +26,19 @@ public class ShuffleBag<T>
 
 	public ShuffleBag(List<T> bag, bool autoRefill = true)
 	{
-		originalBag = bag;
+        originalBag = new List<T>();
+        currentBag = new List<T>();
+        for (int i = 0; i < bag.Count; i++)
+        {
+            originalBag.Add(bag[i]);
+        }
 		Refill();
 		this.autoRefill = autoRefill;
 	}
 
 	public T GetNextItemInBag()
 	{
-		if (currentBag.Count < 0 && autoRefill)
+		if (currentBag.Count <= 0 && autoRefill)
 			Refill();
 		if (currentBag.Count > 0)
 		{
@@ -43,7 +48,8 @@ public class ShuffleBag<T>
 			return result;
 		}
 		else
-			throw new System.ArgumentOutOfRangeException("currentBag", "Current bag is empty!");
+            throw new System.ArgumentOutOfRangeException("currentBag", "Current bag is empty!");
+			
 	}
 
 	/// <summary>
@@ -51,8 +57,11 @@ public class ShuffleBag<T>
 	/// </summary>
 	public void Refill()
 	{
-		currentBag = originalBag;
-	}
+        for (int i = 0; i < originalBag.Count; i++)
+        {
+            currentBag.Add(originalBag[i]);
+        }
+    }
 
 	/// <summary>
 	/// Saves the current bag.
