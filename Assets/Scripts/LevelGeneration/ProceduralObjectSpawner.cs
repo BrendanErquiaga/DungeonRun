@@ -4,41 +4,71 @@ using UnityEngine;
 
 public class ProceduralObjectSpawner : MonoBehaviour
 {
-    public ProceduralObjectBagGenerator bagGenerator;
-    
-    public bool addForceToObjectsOnSpawn = false;
-    public float randomForce = 10f;
+    [SerializeField]
+    private ProceduralObjectBagGenerator bagGenerator;
+    [SerializeField]
+    protected bool addForceToObjectsOnSpawn = false;
+    [SerializeField]
+    protected float randomForce = 10f;
+
+    [SerializeField]
+    protected SpawnerCreationBehavior creationBehavior = SpawnerCreationBehavior.Overlap;
+    [SerializeField]
+    protected LayerMask layerMaskToCheck;
 
     [SerializeField]
     protected List<Transform> spawnLocations;
 
+    protected GameObject nextObjectToSpawn;
     protected GameObject previouslySpawnedObject;
+    protected Vector3 previousSpawnLocation;
     private int spawnedItemCount = 0;
     private ShuffleBag<Transform> spawnLocationShufflebag;
 
-    private void Awake()
+    public ProceduralObjectBagGenerator BagGenerator
     {
-        if(spawnLocations.Count > 0) {
-            spawnLocationShufflebag = new ShuffleBag<Transform>(spawnLocations, true);
-        } else
+        get
         {
-            spawnLocationShufflebag = new ShuffleBag<Transform>(new List<Transform>());
-        }        
+            return bagGenerator;
+        }
+
+        protected set
+        {
+            bagGenerator = value;
+        }
     }
 
-    protected virtual void SpawnObject()
+    private void Awake()
     {
-        if (bagGenerator.objectBag.BagEmpty)
+        Initialize();  
+    }
+
+    protected virtual void Initialize()
+    {
+        if (spawnLocations.Count > 0)
+        {
+            spawnLocationShufflebag = new ShuffleBag<Transform>(spawnLocations, true);
+        }
+        else
+        {
+            spawnLocationShufflebag = new ShuffleBag<Transform>(new List<Transform>());
+        }
+    }
+
+    public virtual void SpawnObject()
+    {
+        if (BagGenerator.objectBag.BagEmpty)
         {
             Debug.Log("Bag is empty, you can't spawn...");
             return;
         }
 
+        nextObjectToSpawn = GetNextObject();
         Vector3 spawnLocation = GetSpawnLocation();
+        spawnLocation = GetAcceptableSpawnPosition(spawnLocation);
 
-        GameObject objectToInstantiate = bagGenerator.objectBag.GetNextItemInBag();
-
-        previouslySpawnedObject = GameObject.Instantiate(objectToInstantiate, spawnLocation, objectToInstantiate.transform.rotation, this.transform);
+        previouslySpawnedObject = GameObject.Instantiate(nextObjectToSpawn, spawnLocation, nextObjectToSpawn.transform.rotation, this.transform);
+        previouslySpawnedObject.name = previouslySpawnedObject.name + "[" + spawnedItemCount + "]";
 
         if(addForceToObjectsOnSpawn)
         {
@@ -46,6 +76,13 @@ public class ProceduralObjectSpawner : MonoBehaviour
         }
 
         spawnedItemCount++;
+
+        previousSpawnLocation = spawnLocation;
+    }
+
+    protected GameObject GetNextObject()
+    {
+        return BagGenerator.objectBag.GetNextItemInBag();
     }
 
     protected virtual void AddForceToObject(GameObject objectToAddForceTo)
@@ -74,4 +111,39 @@ public class ProceduralObjectSpawner : MonoBehaviour
             return spawnLocationShufflebag.GetNextItemInBag().position;
         }
     }
+
+    protected virtual Vector3 GetAcceptableSpawnPosition(Vector3 possibleSpawnPosition)
+    {
+        Vector3 acceptablePosition = possibleSpawnPosition;
+        switch (creationBehavior)
+        {
+            case SpawnerCreationBehavior.LazyUniformRelocate:
+                acceptablePosition = GetUniformRelocatedSpawnLocation(possibleSpawnPosition);
+                break;
+            case SpawnerCreationBehavior.Relocate:
+                acceptablePosition = GetRelocatedSpawnPosition(possibleSpawnPosition);
+                break;
+            default:
+                break;
+        }
+
+        return acceptablePosition;
+    }
+
+    protected virtual Vector3 GetUniformRelocatedSpawnLocation(Vector3 possibleSpawnLocation)
+    {
+        return possibleSpawnLocation;
+    }
+
+    protected virtual Vector3 GetRelocatedSpawnPosition(Vector3 possibleSpawnLocation)
+    {
+        return possibleSpawnLocation;
+    }
+}
+
+public enum SpawnerCreationBehavior
+{
+    Overlap,
+    LazyUniformRelocate,
+    Relocate
 }

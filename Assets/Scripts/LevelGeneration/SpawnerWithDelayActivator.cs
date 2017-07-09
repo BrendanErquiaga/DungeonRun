@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProceduralObjectSpawnerWithDelay : ProceduralObjectSpawner
+public class SpawnerWithDelayActivator : MonoBehaviour
 {
     public float initialDelay = 0f;
     public float spawnRate = 0.2f;
+
+    [SerializeField]
+    protected ProceduralObjectSpawner objectSpawner;
 
     private void Start()
     {
@@ -14,7 +17,7 @@ public class ProceduralObjectSpawnerWithDelay : ProceduralObjectSpawner
 
     protected virtual void StartSpawningObjects()
     {
-        if (!bagGenerator.objectBag.BagEmpty)
+        if (!objectSpawner.BagGenerator.objectBag.BagEmpty)
         {
             InvokeRepeating("SpawnObject", initialDelay, spawnRate);
         }
@@ -24,11 +27,11 @@ public class ProceduralObjectSpawnerWithDelay : ProceduralObjectSpawner
         }
     }
 
-    protected override void SpawnObject()
+    protected virtual void SpawnObject()
     {
-        base.SpawnObject();
+        objectSpawner.SpawnObject();
 
-        if (bagGenerator.objectBag.BagEmpty)
+        if (objectSpawner.BagGenerator.objectBag.BagEmpty)
         {
             CancelInvoke("SpawnObject");
             Debug.Log("Done spawning!");

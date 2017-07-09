@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProceduralObjectRowSpawner : ProceduralObjectFastSpawner
+public class ProceduralObjectRowSpawner : ProceduralObjectSpawner
 {
     [SerializeField]
     protected Vector3 spawnDirection = Vector3.forward;
@@ -14,7 +14,7 @@ public class ProceduralObjectRowSpawner : ProceduralObjectFastSpawner
             return base.GetSpawnLocation();
         } else
         {
-            Vector3 newSpawnLocation = previouslySpawnedObject.transform.position;
+            Vector3 newSpawnLocation = previousSpawnLocation;
 
             Vector3 boundsOfPreviousObject = previouslySpawnedObject.GetComponent<Renderer>().bounds.size;
 
@@ -23,15 +23,15 @@ public class ProceduralObjectRowSpawner : ProceduralObjectFastSpawner
                 boundsOfPreviousObject.z * spawnDirection.z);
 
             newSpawnLocation = new Vector3(newSpawnLocation.x + distance.x,
-                                                    newSpawnLocation.y + distance.y,
-                                                    newSpawnLocation.z + distance.z);
+                                    newSpawnLocation.y + distance.y,
+                                    newSpawnLocation.z + distance.z);
+
             return newSpawnLocation;
         }
     }
 
     void OnDrawGizmosSelected()
     {
-        // Display the explosion radius when selected
         Gizmos.color = new Color(1, 1, 0, 0.75F);
         Gizmos.DrawLine(transform.position, transform.position + (spawnDirection * 10));
     }

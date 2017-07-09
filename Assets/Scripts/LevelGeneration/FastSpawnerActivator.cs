@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProceduralObjectFastSpawner : ProceduralObjectSpawner
+public class FastSpawnerActivator : MonoBehaviour
 {
     [SerializeField]
     private float initialDelay = 0;
+    [SerializeField]
+    protected ProceduralObjectSpawner objectSpawner;
 
     private void Start()
     {
@@ -14,9 +16,10 @@ public class ProceduralObjectFastSpawner : ProceduralObjectSpawner
 
     protected virtual void StartSpawningObjects()
     {
-        while (!bagGenerator.objectBag.BagEmpty)
+        while (!objectSpawner.BagGenerator.objectBag.BagEmpty)
         {
-            SpawnObject();
+            objectSpawner.SpawnObject();
         }
     }
 }
+
