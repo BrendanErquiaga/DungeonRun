@@ -117,10 +117,10 @@ public class ProceduralObjectSpawner : MonoBehaviour
         Vector3 acceptablePosition = possibleSpawnPosition;
         switch (creationBehavior)
         {
-            case SpawnerCreationBehavior.LazyUniformRelocate:
+            case SpawnerCreationBehavior.RaycastRelocate:
                 acceptablePosition = GetUniformRelocatedSpawnLocation(possibleSpawnPosition);
                 break;
-            case SpawnerCreationBehavior.Relocate:
+            case SpawnerCreationBehavior.BoxCastRelocate:
                 acceptablePosition = GetRelocatedSpawnPosition(possibleSpawnPosition);
                 break;
             default:
@@ -144,6 +144,6 @@ public class ProceduralObjectSpawner : MonoBehaviour
 public enum SpawnerCreationBehavior
 {
     Overlap,
-    LazyUniformRelocate,
-    Relocate
+    RaycastRelocate,
+    BoxCastRelocate
 }

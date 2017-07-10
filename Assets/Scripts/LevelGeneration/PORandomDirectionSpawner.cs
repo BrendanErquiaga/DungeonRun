@@ -10,7 +10,7 @@ public class PORandomDirectionSpawner : ProceduralObjectRowSpawner
     protected bool getRandomDirectionAfterFindingCollision = false;
 
     [SerializeField]
-    protected Vector3[] randomDirections = new Vector3[] { Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+    protected List<Vector3> randomDirections = new List<Vector3> { Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
     protected override void Initialize()
     {
@@ -36,7 +36,7 @@ public class PORandomDirectionSpawner : ProceduralObjectRowSpawner
 
     protected virtual Vector3 GetRandomSpawnDirection()
     {
-        return randomDirections[Random.Range(0, randomDirections.Length)];        
+        return randomDirections[Random.Range(0, randomDirections.Count)];        
     }
 
     protected override Vector3 GetUniformRelocatedSpawnLocation(Vector3 possibleSpawnLocation)
@@ -57,5 +57,21 @@ public class PORandomDirectionSpawner : ProceduralObjectRowSpawner
         }
 
         return possibleSpawnLocation;   
+    }
+
+    protected override Vector3 GetRelocatedSpawnPosition(Vector3 possibleSpawnLocation)
+    {
+        Vector3 nextObjectBounds = nextObjectToSpawn.GetComponent<Collider>().bounds.size;
+
+        if(Physics.CheckBox(possibleSpawnLocation, nextObjectBounds, nextObjectToSpawn.transform.rotation, layerMaskToCheck))
+        {
+            previousSpawnLocation = possibleSpawnLocation;
+            if (getRandomDirectionAfterFindingCollision)
+                return GetRelocatedSpawnPosition(GetSpawnLocation());
+            else
+                return GetRelocatedSpawnPosition(base.GetSpawnLocation());
+        }
+
+        return possibleSpawnLocation;
     }
 }

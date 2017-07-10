@@ -14,7 +14,7 @@ public class ProceduralObjectBagGenerator : MonoBehaviour {
     private int initialPiecesToGenerate = 100;    
 
     [SerializeField]
-    private List<GameObjectWithInt> objectWithInt;
+    private List<GameObjectWithInt> weightedObjects;
 
     private int sumOfChances;
     private int objectsInBag;
@@ -29,7 +29,7 @@ public class ProceduralObjectBagGenerator : MonoBehaviour {
     {
         int tempSum = 0;
 
-        foreach(GameObjectWithInt generatable in objectWithInt)
+        foreach(GameObjectWithInt generatable in weightedObjects)
         {
             tempSum += generatable.value;
         }
@@ -43,12 +43,12 @@ public class ProceduralObjectBagGenerator : MonoBehaviour {
 
         for (int i = 0; i < initialPiecesToGenerate; i++)
         {
-            int r = Random.Range(0, sumOfChances);
+            int r = Random.Range(1, sumOfChances + 1);
             GameObject objectToUse = null;
 
             int previousFloor = 0;
 
-            foreach(GameObjectWithInt generatable in objectWithInt)
+            foreach(GameObjectWithInt generatable in weightedObjects)
             {
                 if(r <= generatable.value + previousFloor)
                 {

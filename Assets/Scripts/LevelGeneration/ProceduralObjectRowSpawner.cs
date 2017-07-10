@@ -16,11 +16,13 @@ public class ProceduralObjectRowSpawner : ProceduralObjectSpawner
         {
             Vector3 newSpawnLocation = previousSpawnLocation;
 
+            Vector3 boundsOfNextObject = nextObjectToSpawn.GetComponent<Renderer>().bounds.size;
             Vector3 boundsOfPreviousObject = previouslySpawnedObject.GetComponent<Renderer>().bounds.size;
 
-            Vector3 distance = new Vector3(boundsOfPreviousObject.x * spawnDirection.x,
-                boundsOfPreviousObject.y * spawnDirection.y, 
-                boundsOfPreviousObject.z * spawnDirection.z);
+            Vector3 distance = new Vector3(
+                (boundsOfNextObject.x / 2 * spawnDirection.x) + (boundsOfPreviousObject.x / 2 * spawnDirection.x),
+                (boundsOfNextObject.y / 2 * spawnDirection.y) + (boundsOfPreviousObject.y / 2 * spawnDirection.y),
+                (boundsOfNextObject.z / 2 * spawnDirection.z) + (boundsOfPreviousObject.z / 2 * spawnDirection.z));
 
             newSpawnLocation = new Vector3(newSpawnLocation.x + distance.x,
                                     newSpawnLocation.y + distance.y,

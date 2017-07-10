@@ -34,7 +34,6 @@ public class SpawnerWithDelayActivator : MonoBehaviour
         if (objectSpawner.BagGenerator.objectBag.BagEmpty)
         {
             CancelInvoke("SpawnObject");
-            Debug.Log("Done spawning!");
         }
     }
 }

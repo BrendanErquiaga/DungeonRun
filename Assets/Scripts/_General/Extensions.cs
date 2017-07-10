@@ -261,23 +261,5 @@ public static class Extensions
 		return style.CalcSize(new GUIContent(text));
 	}
     #endregion
-
-    #region Physics
-    public static bool CheckBounds(Vector3 position, Vector3 boundsSize, int layerMask)
-    {
-        Bounds boxBounds = new Bounds(position, boundsSize);
-
-        float sqrHalfBoxSize = boxBounds.extents.sqrMagnitude;
-        float overlapingSphereRadius = Mathf.Sqrt(sqrHalfBoxSize + sqrHalfBoxSize);
-        
-        Collider[] hitColliders = Physics.OverlapSphere(position, overlapingSphereRadius, layerMask);
-        foreach (Collider otherCollider in hitColliders)
-        {
-            if (otherCollider.bounds.Intersects(boxBounds))
-                return (false);
-        }
-        return (true);
-    }
-    #endregion
 }
 
