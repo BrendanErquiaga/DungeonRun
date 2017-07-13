@@ -6,7 +6,7 @@ using UnityEngine;
 public class GameObjectWithInt {
 
     public GameObject objectToUse;
-    public int value;
+    public int value = 1;
 
     public GameObjectWithInt(GameObject objectToUse, int value)
     {

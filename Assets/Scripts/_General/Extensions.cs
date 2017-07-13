@@ -261,5 +261,44 @@ public static class Extensions
 		return style.CalcSize(new GUIContent(text));
 	}
     #endregion
+
+    #region Physics
+    public static Bounds GetBoundsOfChildren(GameObject parentObject)
+    {
+        Bounds combinedBounds = new Bounds(parentObject.transform.position, Vector3.zero);
+        Renderer parentRenderer = parentObject.GetComponent<Renderer>();
+
+        var renderers = parentObject.GetComponentsInChildren<Renderer>();
+        foreach(Renderer render in renderers)
+        {
+            if (render != parentRenderer) combinedBounds.Encapsulate(render.bounds);
+        }
+
+        return combinedBounds;
+    }
+
+    public static void IgnoreAllChildColliders(GameObject parentObject)
+    {
+        Collider[] colliders = parentObject.GetComponentsInChildren<Collider>();
+
+        foreach (Collider collider in colliders)
+        {
+            foreach (Collider childCollider in colliders)
+            {
+                Physics.IgnoreCollision(collider, childCollider);
+            }
+        }
+    }
+
+    public static void ToggleChildColliders(GameObject parentObject, Boolean collidersEnabled = true)
+    {
+        Collider[] colliders = parentObject.GetComponentsInChildren<Collider>();
+
+        foreach (Collider collider in colliders)
+        {
+            collider.enabled = collidersEnabled;
+        }
+    }
+    #endregion
 }
 

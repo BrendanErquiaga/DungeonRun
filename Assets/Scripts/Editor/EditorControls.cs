@@ -125,8 +125,8 @@ public class EditorControls
 //			Undo.RecordObjects(Selection.objects[0], "Group Objects");
 			if(Selection.gameObjects.Length > 1)
 			{
-				parentObject.transform.position = Vector3.zero;
-				parentObject.transform.rotation = new Quaternion(0,0,0,0);
+				parentObject.transform.position = GetAveragePosition();
+                parentObject.transform.rotation = new Quaternion(0,0,0,0);
 			}
 			else
 			{
@@ -145,8 +145,25 @@ public class EditorControls
             Selection.activeGameObject = parentObject;
         }
     }
-	
-	static void RemoveParentsOfSelectedObjects()
+
+    static Vector3 GetAveragePosition()
+    {
+        Vector3 centroid = Vector3.zero;
+
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+        foreach (GameObject go in Selection.gameObjects)
+        {
+            x += go.transform.position.x;
+            y += go.transform.position.y;
+            z += go.transform.position.z;
+            centroid += go.transform.position;
+        }
+        return (centroid /= Selection.gameObjects.Length);
+    }
+
+    static void RemoveParentsOfSelectedObjects()
     {
 //        Undo.RegisterSceneUndo("Removed parents from objects");
 //		Undo.RecordObjects(Selection.gameObjects[0], "Ungroup Objects");
