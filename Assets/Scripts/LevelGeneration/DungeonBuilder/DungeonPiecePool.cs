@@ -5,119 +5,134 @@ using UnityEngine;
 public class DungeonPiecePool : MonoBehaviour
 {
     [SerializeField]
-    private List<GameObjectWithInt> dungeonPieces;
+    private List<GameObjectWithInt> dungeonPiecePool;
+    [SerializeField]
+    private List<GameObjectWithInt> wallPiecePool;
     [HideInInspector]
     public bool poolIsPrepared = false;
 
-    private int sumOfChances;
+    private List<GameObjectWithInt> connectorOnlyPool;
+    private List<GameObjectWithInt> nonRoomPiecePool;
+
+    private int dungeonPieceSumOfChances;
+    private int connectorOnlySumOfChances;
+    private int nonRoomSumOfChances;
+    private int wallPieceSumOfChances;
 
     public List<GameObjectWithInt> DungeonPieces
     {
         get
         {
-            return dungeonPieces;
+            return dungeonPiecePool;
         }
 
         set
         {
-            dungeonPieces = value;
+            dungeonPiecePool = value;
         }
     }
 
     private void Awake()
     {
-        CalculateShuffleTable();
+        CreatePools();
+        CalculateShuffleTables();
         poolIsPrepared = true;
     }
 
-    private void CalculateShuffleTable()
+    private void CreatePools()
+    {
+        connectorOnlyPool = new List<GameObjectWithInt>();
+        nonRoomPiecePool = new List<GameObjectWithInt>();
+        foreach (GameObjectWithInt dungeonPiece in dungeonPiecePool)
+        {
+            DungeonPieceType pieceType = dungeonPiece.objectToUse.GetComponent<DungeonPiece>().PieceType;
+            if (pieceType == DungeonPieceType.CONNECTOR)
+            {
+                connectorOnlyPool.Add(dungeonPiece);
+                nonRoomPiecePool.Add(dungeonPiece);
+            } else if(pieceType == DungeonPieceType.INTERSECTION)
+            {
+                nonRoomPiecePool.Add(dungeonPiece);
+            }
+        }
+    }
+
+    private void CalculateShuffleTables()
+    {
+        dungeonPieceSumOfChances = GetSumOfChances(dungeonPiecePool);
+        connectorOnlySumOfChances = GetSumOfChances(connectorOnlyPool);
+        nonRoomSumOfChances = GetSumOfChances(nonRoomPiecePool);
+        wallPieceSumOfChances = GetSumOfChances(wallPiecePool);
+    }
+
+    private int GetSumOfChances(List<GameObjectWithInt> gowiList)
     {
         int tempSum = 0;
 
-        foreach (GameObjectWithInt dungeonPiece in dungeonPieces)
+        foreach (GameObjectWithInt gowi in gowiList)
         {
-            tempSum += dungeonPiece.value;
+            tempSum += gowi.value;
         }
 
-        sumOfChances = tempSum;
+        return tempSum;
     }
 
     public GameObject GetDungeonPiece()
     {
-        if (dungeonPieces.Count == 1)
+        return GetRandomPieceFromPool(dungeonPiecePool, dungeonPieceSumOfChances);
+    }
+
+    public GameObject GetWallPiece()
+    {
+        return GetRandomPieceFromPool(wallPiecePool, wallPieceSumOfChances);
+    }
+
+    private GameObject GetRandomPieceFromPool(List<GameObjectWithInt> pool, int sumOfChances)
+    {
+        if (pool.Count == 1)
         {
-            return dungeonPieces[0].objectToUse;
+            return pool[0].objectToUse;
         }
 
         int r = Random.Range(1, sumOfChances + 1);
         int previousFloor = 0;
-        GameObject pieceToReturn = null;        
+        GameObject pieceToReturn = null;
 
-        foreach (GameObjectWithInt dungeonPiece in dungeonPieces)
+        foreach (GameObjectWithInt gowi in pool)
         {
-            if (r <= dungeonPiece.value + previousFloor)
+            if (r <= gowi.value + previousFloor)
             {
-                pieceToReturn = dungeonPiece.objectToUse;
+                pieceToReturn = gowi.objectToUse;
                 break;
             }
             else
             {
-                previousFloor += dungeonPiece.value;
+                previousFloor += gowi.value;
             }
         }
 
         return pieceToReturn;
     }
 
-    public GameObject GetDungeonPiece(DungeonPiece lastDungeonPiece)
+    public GameObject GetDungeonPiece(DungeonPiece connectedDungeonPiece)
     {
-        if (dungeonPieces.Count == 1)
+        if (dungeonPiecePool.Count == 1)
         {
-            return dungeonPieces[0].objectToUse;
+            return dungeonPiecePool[0].objectToUse;
         }
 
-        int checks = 0;
         GameObject pieceToReturn = null;
-        DungeonPieceType typeOfReturnPiece;
 
-        do
+        switch (connectedDungeonPiece.PieceType)
         {
-            pieceToReturn = GetDungeonPiece();
-            typeOfReturnPiece = pieceToReturn.GetComponent<DungeonPiece>().PieceType;
-            checks++;
-        } while (!CanConnectPieces(lastDungeonPiece, typeOfReturnPiece) && checks < 100);
-
-        if(checks >= 100)
-        {
-            Debug.Log("This thing tried really hard to find the correct piece but couldn't =/.");
+            case DungeonPieceType.INTERSECTION:
+                pieceToReturn = GetRandomPieceFromPool(connectorOnlyPool, connectorOnlySumOfChances);
+                break;
+            default:
+                pieceToReturn = GetRandomPieceFromPool(dungeonPiecePool, dungeonPieceSumOfChances);
+                break;
         }
 
         return pieceToReturn;
-    }
-
-    public bool CanConnectPieces(DungeonPiece pieceToConnectTo, DungeonPieceType typeOfConnectorPiece)
-    {
-        bool canConnectPieces = false;
-
-        switch (pieceToConnectTo.PieceType)
-        {
-            case DungeonPieceType.INTERSECTION:
-                if(typeOfConnectorPiece == DungeonPieceType.CONNECTOR)
-                {
-                    canConnectPieces = true;
-                }
-                break;
-            case DungeonPieceType.ROOM:
-                if (typeOfConnectorPiece == DungeonPieceType.CONNECTOR || typeOfConnectorPiece == DungeonPieceType.INTERSECTION)
-                {
-                    canConnectPieces = true;
-                }
-                break;
-            default:
-                canConnectPieces = true;
-                break;
-        }
-
-        return canConnectPieces;
     }
 }

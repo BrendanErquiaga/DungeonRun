@@ -12,8 +12,8 @@ public class DungeonPiece : MonoBehaviour
     protected Transform[] entrances;
     [SerializeField]
     protected SerializableDictionary<string, string> pieceProperties;
-    [SerializeField]
-    private List<Transform> openExits;
+    protected List<Transform> openExits;
+    protected List<Transform> openEntrances;
 
     public DungeonPieceType PieceType
     {
@@ -67,6 +67,19 @@ public class DungeonPiece : MonoBehaviour
         }
     }
 
+    public List<Transform> OpenEntrances
+    {
+        get
+        {
+            return openEntrances;
+        }
+
+        set
+        {
+            openEntrances = value;
+        }
+    }
+
     public SerializableDictionary<string, string> PieceProperties
     {
         get
@@ -78,7 +91,7 @@ public class DungeonPiece : MonoBehaviour
         {
             pieceProperties = value;
         }
-    }
+    }   
 
     private void Awake()
     {
@@ -88,8 +101,9 @@ public class DungeonPiece : MonoBehaviour
     protected void InitPiece()
     {
         openExits = new List<Transform>();
-        
-        foreach(Transform exit in exits)
+        openEntrances = new List<Transform>();
+
+        foreach (Transform exit in exits)
         {
             openExits.Add(exit);
         }
@@ -97,6 +111,11 @@ public class DungeonPiece : MonoBehaviour
         if(entrances.Length == 0)
         {
             entrances = exits;
+        }
+
+        foreach (Transform entrance in entrances)
+        {
+            openEntrances.Add(entrance);
         }
     }
 
@@ -119,9 +138,43 @@ public class DungeonPiece : MonoBehaviour
         return exit;
     }
 
-    public void AttachToExit(Transform exit)
+    public Transform GetNextOpenEntrance()
     {
-        Transform entranceToUse = GetNextOpenExit();
+        Transform entrance = GetRandomOpenEntrance();
+
+        OpenEntrances.Remove(entrance);
+
+        return entrance;
+    }
+
+    public Transform GetRandomOpenEntrance()
+    {
+        if (OpenEntrances.Count == 1)
+        {
+            return OpenEntrances[0];
+        }
+
+        int r = Random.Range(0, OpenEntrances.Count);
+        return OpenEntrances[r];        
+    }
+
+    public void RemoveEntrance(Transform entranceUsed)
+    {
+        if(OpenEntrances.Contains(entranceUsed))
+            OpenEntrances.Remove(entranceUsed);
+
+        if(OpenExits.Contains(entranceUsed))
+            OpenExits.Remove(entranceUsed);
+    }
+
+    /// <summary>
+    /// Attaches random entrance to given exit
+    /// </summary>
+    /// <param name="exit">Exit used</param>
+    /// <returns></returns>
+    public Transform AttachToExit(Transform exit)
+    {
+        Transform entranceToUse = GetRandomOpenEntrance();
 
         entranceToUse.transform.parent = this.gameObject.transform.parent;
 
@@ -131,6 +184,17 @@ public class DungeonPiece : MonoBehaviour
 
         this.gameObject.transform.parent = entranceToUse.parent;
         entranceToUse.parent = this.gameObject.transform;
+
+        return entranceToUse;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = new Color(0.1f,0.1f,0.5f, 0.5f);
+
+        Bounds objectBounds = Extensions.GetBoundsOfChildren(this.gameObject);
+
+        Gizmos.DrawCube(objectBounds.center, objectBounds.size);
     }
 }
 
