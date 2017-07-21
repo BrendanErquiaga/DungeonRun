@@ -160,7 +160,7 @@ public class DungeonBuilder : MonoBehaviour
             objectSafelyPlaced = false;
         } else
         {
-            dungeonPiece.RemoveEntrance(entranceUsed);//Make sure we don't leave this listed as an open Entrance
+            dungeonPiece.ConnectPieceToExit(entranceUsed, exit);//Make sure we don't leave this listed as an open Entrance
             Extensions.ToggleChildColliders(dungeonPiece.gameObject, true);
         }
 

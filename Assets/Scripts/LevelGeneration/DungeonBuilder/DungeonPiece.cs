@@ -12,6 +12,7 @@ public class DungeonPiece : MonoBehaviour
     protected Transform[] entrances;
     [SerializeField]
     protected SerializableDictionary<string, string> pieceProperties;
+    protected SerializableDictionary<Transform, DungeonPiece> exitPieceConnections;
     protected List<Transform> openExits;
     protected List<Transform> openEntrances;
 
@@ -102,10 +103,16 @@ public class DungeonPiece : MonoBehaviour
     {
         openExits = new List<Transform>();
         openEntrances = new List<Transform>();
+        exitPieceConnections = new SerializableDictionary<Transform, DungeonPiece>();
 
         foreach (Transform exit in exits)
         {
             openExits.Add(exit);
+            if(exit.GetComponent<ExitMarker>() == null)
+            {
+                ExitMarker exitMarker = exit.gameObject.AddComponent<ExitMarker>();
+                exitMarker.ParentDungeonPiece = this;
+            }
         }
 
         if(entrances.Length == 0)
@@ -116,6 +123,11 @@ public class DungeonPiece : MonoBehaviour
         foreach (Transform entrance in entrances)
         {
             openEntrances.Add(entrance);
+            if (entrance.GetComponent<ExitMarker>() == null)
+            {
+                ExitMarker exitMarker = entrance.gameObject.AddComponent<ExitMarker>();
+                exitMarker.ParentDungeonPiece = this;
+            }
         }
     }
 
@@ -186,6 +198,20 @@ public class DungeonPiece : MonoBehaviour
         entranceToUse.parent = this.gameObject.transform;
 
         return entranceToUse;
+    }
+
+    public void ConnectPieceToExit(Transform childExit, Transform exitConnectedTo)
+    {
+        this.RemoveEntrance(childExit);
+
+        ExitMarker exitMarker = exitConnectedTo.GetComponent<ExitMarker>();
+        
+        if(exitMarker != null)
+        {
+            DungeonPiece pieceConnectedTo = exitMarker.ParentDungeonPiece;
+
+            this.exitPieceConnections.Add(childExit, pieceConnectedTo);
+        }         
     }
 
     private void OnDrawGizmosSelected()
