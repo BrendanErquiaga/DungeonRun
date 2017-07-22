@@ -12,10 +12,11 @@ public class DungeonPiece : MonoBehaviour
     protected Transform[] entrances;
     [SerializeField]
     protected SerializableDictionary<string, string> pieceProperties;
-    protected SerializableDictionary<Transform, DungeonPiece> exitPieceConnections;
+    private List<PieceConnection> exitPieceConnections;
     protected List<Transform> openExits;
     protected List<Transform> openEntrances;
 
+#region Properties
     public DungeonPieceType PieceType
     {
         get
@@ -92,7 +93,26 @@ public class DungeonPiece : MonoBehaviour
         {
             pieceProperties = value;
         }
-    }   
+    }
+
+    public List<PieceConnection> ExitPieceConnections
+    {
+        get
+        {
+            return exitPieceConnections;
+        }
+
+        set
+        {
+            exitPieceConnections = value;
+        }
+    }
+
+    public bool HasPieceConnections
+    {
+        get { return (ExitPieceConnections.Count > 0) ? true : false; }
+    }
+#endregion
 
     private void Awake()
     {
@@ -103,7 +123,7 @@ public class DungeonPiece : MonoBehaviour
     {
         openExits = new List<Transform>();
         openEntrances = new List<Transform>();
-        exitPieceConnections = new SerializableDictionary<Transform, DungeonPiece>();
+        exitPieceConnections = new List<PieceConnection>();
 
         foreach (Transform exit in exits)
         {
@@ -210,9 +230,44 @@ public class DungeonPiece : MonoBehaviour
         {
             DungeonPiece pieceConnectedTo = exitMarker.ParentDungeonPiece;
 
-            this.exitPieceConnections.Add(childExit, pieceConnectedTo);
+            this.ExitPieceConnections.Add(new PieceConnection(childExit, pieceConnectedTo));
         }         
     }
+
+    public void RemoveAllExitConnections()
+    {
+        foreach(PieceConnection connection in ExitPieceConnections)
+        {
+            connection.connectedPiece.RemovePieceFromConnections(this);
+        }
+
+        ExitPieceConnections.Clear();
+    }
+
+    public void RemovePieceFromConnections(DungeonPiece pieceToRemove)
+    {
+        PieceConnection connectionToRemove = null;
+
+        foreach (PieceConnection connection in ExitPieceConnections)
+        {
+            if(connection.connectedPiece == pieceToRemove)
+            {
+                OpenExits.Add(connection.exit);
+                connectionToRemove = connection;
+                break;
+            }
+        }
+
+        if(connectionToRemove != null)
+        {
+            exitPieceConnections.Remove(connectionToRemove);
+        }
+    }
+
+    //public PieceConnection GetNextPieceConnection()
+    //{
+    //    //TODO THIS
+    //}
 
     private void OnDrawGizmosSelected()
     {
@@ -229,4 +284,16 @@ public enum DungeonPieceType
     ROOM,
     CONNECTOR,
     INTERSECTION
+}
+
+public class PieceConnection
+{
+    public Transform exit;
+    public DungeonPiece connectedPiece;
+
+    public PieceConnection(Transform exit, DungeonPiece connectedPiece)
+    {
+        this.exit = exit;
+        this.connectedPiece = connectedPiece;
+    }
 }
