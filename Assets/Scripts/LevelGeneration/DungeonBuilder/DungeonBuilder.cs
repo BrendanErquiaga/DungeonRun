@@ -7,7 +7,9 @@ public class DungeonBuilder : MonoBehaviour
     [SerializeField]
     protected DungeonPiecePool dungeonPool;
     [SerializeField]
-    protected int piecesToSpawn = 10;    
+    protected int piecesToSpawn = 10;
+    [SerializeField]
+    protected float pieceBufferRatio = 0.2f;
     [SerializeField]
     protected Transform initialEntrancePosition;
 
@@ -21,12 +23,11 @@ public class DungeonBuilder : MonoBehaviour
     protected LayerMask layerMaskToCheck;
 
     private int spawnedPiecesCount;
+    private int itemsMarkedForRemoval;
     private List<Transform> unfilledExits;
     private List<DungeonPiece> uncheckedDungeonPieces;
     private List<DungeonPiece> openConnectorPieces;
     private List<DungeonPiece> openIntersectionPieces;
-    private List<DungeonPiece> openRoomPieces;
-    //private DungeonPiece nextDungeonPiece;
 
     protected void Start()
     {
@@ -37,11 +38,11 @@ public class DungeonBuilder : MonoBehaviour
     protected void InitDungeonBuilder()
     {
         spawnedPiecesCount = 0;
+        itemsMarkedForRemoval = 0;
         unfilledExits = new List<Transform>();
         uncheckedDungeonPieces = new List<DungeonPiece>();
         openConnectorPieces = new List<DungeonPiece>();
         openIntersectionPieces = new List<DungeonPiece>();
-        openRoomPieces = new List<DungeonPiece>();
     }
 
     protected void StartBuildingDungeon()
@@ -58,53 +59,72 @@ public class DungeonBuilder : MonoBehaviour
     protected void BuildDungeon()
     {
         GenerateDungeonPieces();
+        Debug.Log("Spawned pieces: " + spawnedPiecesCount);
 
         GatherUnusedExits();
+        Debug.Log("Unchecked pieces: " + uncheckedDungeonPieces.Count + ". Unfilled exits: " + unfilledExits.Count);
 
-        if(tryToConnectOpenExits)
+        if (tryToConnectOpenExits)
         {
             ConnectUnusedExits();
-        } 
+        }
 
-        if(cleanUpDeadEnds)
+        Invoke("FinishDungeon", 0.5f);        
+    }
+
+    private void FinishDungeon()
+    {
+        if (cleanUpDeadEnds)
         {
             RemoveDeadEnds();
         }
+        Debug.Log("Items removed: " + itemsMarkedForRemoval + ". Remaining exits: " + unfilledExits.Count);
 
-        //WallOffRemainingExits();
+        WallOffRemainingExits();
     }
 
     protected void GenerateDungeonPieces()
     {
         DungeonPiece firstDP = GetFirstDungeonPiece();
-        firstDP.AttachToExit(initialEntrancePosition);
+        Transform firstEntrance = firstDP.AttachToExit(initialEntrancePosition);
+        firstDP.RemoveEntrance(firstEntrance);
 
         uncheckedDungeonPieces.Add(firstDP);
 
-        while (uncheckedDungeonPieces.Count > 0 && spawnedPiecesCount < piecesToSpawn)
+        while (uncheckedDungeonPieces.Count > 0 && spawnedPiecesCount < piecesToSpawn + (piecesToSpawn * pieceBufferRatio))
         {
             DungeonPiece pieceToCheck = uncheckedDungeonPieces[0];
             List<Transform> exitsToCheck = pieceToCheck.OpenExits;
+            List<Transform> exitsToSkip = new List<Transform>();
             AddUnusedExits(pieceToCheck);
 
-            foreach (Transform exit in exitsToCheck)
+            Transform nextExit;         
+            
+            while(exitsToCheck.Count > 0 && exitsToSkip.Count != exitsToCheck.Count)
             {
-                GameObject instantiatedDP = AttemptToFillExit(exit, pieceToCheck);
+                nextExit = exitsToCheck[0];
+
+                GameObject instantiatedDP = AttemptToFillExit(nextExit, pieceToCheck);
 
                 if (instantiatedDP != null)
                 {
                     DungeonPiece dp = instantiatedDP.GetComponent<DungeonPiece>();
                     uncheckedDungeonPieces.Add(dp);
                     spawnedPiecesCount++;
+                    unfilledExits.Remove(nextExit);
                 }
                 else
                 {
-                    if (!cleanUpDeadEnds) {
-                        FillExitWithWall(exit);
-                    }                    
-                }
-
-                unfilledExits.Remove(exit);
+                    if (!cleanUpDeadEnds)
+                    {
+                        FillExitWithWall(nextExit);
+                        pieceToCheck.RemoveEntrance(nextExit);
+                        unfilledExits.Remove(nextExit);
+                    } else
+                    {
+                        exitsToSkip.Add(nextExit);
+                    }
+                }     
             }
 
             uncheckedDungeonPieces.RemoveAt(0);
@@ -113,13 +133,11 @@ public class DungeonBuilder : MonoBehaviour
 
     protected void GatherUnusedExits()
     {
-        Debug.Log("Unchecked pieces: " + uncheckedDungeonPieces.Count + ". Unfilled exits: " + unfilledExits.Count);
         foreach (DungeonPiece uncheckedDP in uncheckedDungeonPieces)
         {
             AddUnusedExits(uncheckedDP);
         }
 
-        Debug.Log("Unchecked pieces: " + uncheckedDungeonPieces.Count + ". Unfilled exits: " + unfilledExits.Count);
         foreach (Transform exit in unfilledExits)
         {
             DungeonPiece parentPiece = exit.GetComponent<ExitMarker>().ParentDungeonPiece;
@@ -144,37 +162,31 @@ public class DungeonBuilder : MonoBehaviour
                     openIntersectionPieces.Add(dungeonPiece);
                 }
                 break;
-            case DungeonPieceType.ROOM:
-                if (!openRoomPieces.Contains(dungeonPiece))
-                {
-                    openRoomPieces.Add(dungeonPiece);
-                }
+            default:
                 break;
         }
     }
 
     protected void ConnectUnusedExits()
     {
-
+        Debug.LogWarning("I'm sorry Dave I can't do that yet.");
     }
 
     protected void RemoveDeadEnds()
     {
-        Debug.Log("Cleanup time, Open Connectors: " + openConnectorPieces.Count);
-        Debug.Log("Cleanup time, Open Intersections: " + openIntersectionPieces.Count);
+        Debug.Log("OpenConnectors: " + openConnectorPieces.Count + ". OpenIntersections: " + openIntersectionPieces.Count);
+
         CleanUpOpenList(openConnectorPieces);
 
-        Debug.Log("Connections cleaned, Open Connectors: " + openConnectorPieces.Count);
-        Debug.Log("Connections cleaned, Open Intersections: " + openIntersectionPieces.Count);
         CleanUpOpenList(openIntersectionPieces);
 
-        Debug.Log("Intersections cleaned, Open Connectors: " + openConnectorPieces.Count);
-        Debug.Log("Intersections cleaned, Open Intersections: " + openIntersectionPieces.Count);
-    }
+        Debug.Log("OpenConnectors: " + openConnectorPieces.Count + ". OpenIntersections: " + openIntersectionPieces.Count);
 
+        Debug.Log("OpenConnectors: " + openConnectorPieces.Count + ". OpenIntersections: " + openIntersectionPieces.Count);
+    }
+    
     protected void CleanUpOpenList(List<DungeonPiece> listToClean)
     {
-        Debug.Log("Starting to clean list of size: " + listToClean.Count);
         while (listToClean.Count > 0)
         {
             DungeonPiece nextPieceToRemove = listToClean[0];
@@ -186,16 +198,18 @@ public class DungeonBuilder : MonoBehaviour
                     DungeonPiece connectedPiece = (nextPieceToRemove.ExitPieceConnections.Count == 1) ?
                         nextPieceToRemove.ExitPieceConnections[0].connectedPiece : null;
 
-                    RemoveDeadPiece(nextPieceToRemove);
+                    if (listToClean.Contains(nextPieceToRemove)) { listToClean.Remove(nextPieceToRemove); }
 
-                    if(listToClean.Contains(nextPieceToRemove)) { listToClean.Remove(nextPieceToRemove); }
+                    RemoveDeadPiece(nextPieceToRemove);                    
 
                     nextPieceToRemove = connectedPiece;
                 }
                 else
                 {
-                    Debug.Log("I couldn't remove this object...", nextPieceToRemove);
                     if (listToClean.Contains(nextPieceToRemove)) { listToClean.Remove(nextPieceToRemove); }
+
+                    AddUnusedExits(nextPieceToRemove);
+
                     nextPieceToRemove = null;
                 }
             }
@@ -212,7 +226,7 @@ public class DungeonBuilder : MonoBehaviour
                 canRemovePiece = true;
                 break;
             case DungeonPieceType.INTERSECTION:
-                if (dungeonPiece.Exits.Length <= 2)//If it's not really an intersection
+                if (dungeonPiece.Exits.Length <= 2 || dungeonPiece.ExitPieceConnections.Count == 1)//If it's not really an intersection
                 {
                     canRemovePiece = true;
                 }
@@ -226,29 +240,31 @@ public class DungeonBuilder : MonoBehaviour
     {
         if(openConnectorPieces.Contains(deadPiece)) { openConnectorPieces.Remove(deadPiece); }
         if(openIntersectionPieces.Contains(deadPiece)) { openIntersectionPieces.Remove(deadPiece); }
-        //if(openRoomPieces.Contains(deadPiece)) { openRoomPieces.Remove(deadPiece); }
 
         DestroyDeadPiece(deadPiece);
     }
 
     protected void DestroyDeadPiece(DungeonPiece deadPiece)
-    {
-        MeshRenderer[] childRenderers = deadPiece.GetComponentsInChildren<MeshRenderer>();
-
-        foreach(MeshRenderer childRenderer in childRenderers)
-        {
-            childRenderer.materials = new Material[0];
-            childRenderer.material = null;
-        }       
-
+    {    
         deadPiece.RemoveAllExitConnections();
-        foreach(Transform exit in deadPiece.OpenExits)
+        foreach(Transform exit in deadPiece.Exits)
         {
             if (unfilledExits.Contains(exit))
             {
                 unfilledExits.Remove(exit);
             }
         }
+
+        //MeshRenderer[] childRenderers = deadPiece.GetComponentsInChildren<MeshRenderer>();
+
+        //foreach (MeshRenderer childRenderer in childRenderers)
+        //{
+        //    childRenderer.materials = new Material[0];
+        //    childRenderer.material = null;
+        //}
+        Destroy(deadPiece.gameObject);
+
+        itemsMarkedForRemoval++;
     }
 
     protected List<DungeonPiece> GetAllRemovablePieces(DungeonPiece deadEndStart)
@@ -269,6 +285,7 @@ public class DungeonBuilder : MonoBehaviour
                 }
                 else
                 {
+                    AddUnusedExits(lastRemovedPiece);
                     stillRemovingPieces = false;
                 }
             }
@@ -276,9 +293,7 @@ public class DungeonBuilder : MonoBehaviour
         } while (stillRemovingPieces);
 
         return piecesToRemove;
-    }
-
-   
+    }   
 
     protected void WallOffRemainingExits()
     {
@@ -292,9 +307,14 @@ public class DungeonBuilder : MonoBehaviour
 
     protected void FillExitWithWall(Transform exit)
     {
-        GameObject wallPiece = InstantiateChildGameObject(dungeonPool.GetWallPiece());
+        GameObject parent = exit.GetComponent<ExitMarker>().ParentDungeonPiece.gameObject;
+        if (parent != null)
+        {           
+            GameObject wallPiece = GameObject.Instantiate(dungeonPool.GetWallPiece(), parent.transform);
 
-        wallPiece.transform.SetPositionAndRotation(exit.position, exit.rotation * Quaternion.Euler(0, 180, 0));
+            wallPiece.transform.SetPositionAndRotation(exit.position, exit.rotation * Quaternion.Euler(0, 180, 0));
+        }
+        
     }
 
     protected GameObject AttemptToFillExit(Transform exitToFill, DungeonPiece connectedPiece)
