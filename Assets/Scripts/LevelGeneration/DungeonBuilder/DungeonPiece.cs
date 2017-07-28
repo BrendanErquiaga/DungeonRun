@@ -16,7 +16,7 @@ public class DungeonPiece : MonoBehaviour
     protected List<Transform> openExits;
     protected List<Transform> openEntrances;
 
-#region Properties
+    #region Properties
     public DungeonPieceType PieceType
     {
         get
@@ -92,6 +92,7 @@ public class DungeonPiece : MonoBehaviour
         set
         {
             pieceProperties = value;
+            staticPropertyString = "";
         }
     }
 
@@ -112,11 +113,37 @@ public class DungeonPiece : MonoBehaviour
     {
         get { return (ExitPieceConnections.Count > 0) ? true : false; }
     }
-#endregion
+    #endregion
+
+    #region Events
+    public delegate void DungeonPieceEvent(DungeonPiece dungeonPiece);
+    public static event DungeonPieceEvent DungeonPieceSpawned;
+    public static event DungeonPieceEvent DungeonPieceDestroyed;
+
+    public static void OnDungeonPieceSpawned(DungeonPiece dungeonPiece)
+    {
+        DungeonPieceEvent handler = DungeonPieceSpawned;
+        if (handler != null)
+            handler(dungeonPiece);
+    }
+
+    public static void OnDungeonPieceDestroyed(DungeonPiece dungeonPiece)
+    {
+        DungeonPieceEvent handler = DungeonPieceDestroyed;
+        if (handler != null)
+            handler(dungeonPiece);
+    }
+    #endregion
 
     private void Awake()
     {
         InitPiece();
+        OnDungeonPieceSpawned(this);
+    }
+
+    private void OnDestroy()
+    {
+        OnDungeonPieceDestroyed(this);
     }
 
     protected void InitPiece()
@@ -124,6 +151,7 @@ public class DungeonPiece : MonoBehaviour
         openExits = new List<Transform>();
         openEntrances = new List<Transform>();
         exitPieceConnections = new List<PieceConnection>();
+        pieceProperties = new SerializableDictionary<string, string>();
 
         foreach (Transform exit in exits)
         {
@@ -150,26 +178,6 @@ public class DungeonPiece : MonoBehaviour
             }
         }
     }
-
-    //Deprecated?
-    //public Transform GetNextOpenExit()
-    //{
-    //    Transform exit = null;
-
-    //    if (OpenExits.Count == 1)
-    //    {
-    //        exit = OpenExits[0];
-    //        OpenExits.RemoveAt(0);
-    //        return exit;
-    //    }
-
-    //    int r = Random.Range(0, OpenExits.Count);
-    //    exit = OpenExits[r];
-
-    //    OpenExits.RemoveAt(r);
-
-    //    return exit;
-    //}
 
     public Transform GetNextOpenEntrance()
     {
@@ -280,10 +288,18 @@ public class DungeonPiece : MonoBehaviour
         }
     }
 
-    //public PieceConnection GetNextPieceConnection()
-    //{
-    //    //TODO THIS
-    //}
+    public void AddProperty(string propertyKey, string propertyValue)
+    {
+        if (!this.PieceProperties.ContainsKey(propertyKey))
+        {
+            this.PieceProperties.Add(propertyKey, propertyValue);
+        } else
+        {
+            this.PieceProperties[propertyKey] = propertyValue;
+        }
+
+        this.staticPropertyString = "";
+    }
 
     private void OnDrawGizmosSelected()
     {
@@ -313,7 +329,33 @@ public class DungeonPiece : MonoBehaviour
                 connectionPosition = connectionPosition.SetY(connectionPosition.y + 0.5f);
                 Gizmos.DrawSphere(connectionPosition, 0.5f);
             }
-        }        
+        }
+        
+        if(PieceProperties != null)
+        {
+            Gizmos.color = Color.white;
+            UnityEditor.Handles.Label(this.transform.position, GetPropertyString());
+        }
+    }
+
+    string staticPropertyString = "";
+    private string GetPropertyString()
+    {
+        if (staticPropertyString != "")
+        {
+            return staticPropertyString;
+        }
+
+        string propertyString = "";
+
+        foreach(KeyValuePair<string, string> property in PieceProperties)
+        {
+            propertyString += property.Key + " : " + property.Value + "\n";
+        }
+
+        staticPropertyString = propertyString;
+
+        return propertyString;
     }
 }
 

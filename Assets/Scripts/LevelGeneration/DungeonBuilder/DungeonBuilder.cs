@@ -29,6 +29,39 @@ public class DungeonBuilder : MonoBehaviour
     private List<DungeonPiece> openConnectorPieces;
     private List<DungeonPiece> openIntersectionPieces;
 
+    public delegate void DungeonBuilderEvent();
+    public static event DungeonBuilderEvent DungeonStartedBuilding;
+    public static event DungeonBuilderEvent DungeonFinishedBuilding;
+
+    private bool dungeonIsReady = false;
+
+    protected bool DungeonIsReady
+    {
+        get
+        {
+            return dungeonIsReady;
+        }
+
+        set
+        {
+            dungeonIsReady = value;
+        }
+    }
+
+    protected void OnDungeonStartedBuilding()
+    {
+        DungeonBuilderEvent handler = DungeonStartedBuilding;
+        if (handler != null)
+            handler();
+    }
+
+    protected void OnDungeonFinishedBuilding()
+    {
+        DungeonBuilderEvent handler = DungeonFinishedBuilding;
+        if (handler != null)
+            handler();
+    }
+
     protected void Start()
     {
         InitDungeonBuilder();
@@ -49,6 +82,7 @@ public class DungeonBuilder : MonoBehaviour
     {
         if (dungeonPool.poolIsPrepared)
         {
+            OnDungeonStartedBuilding();
             BuildDungeon();
         } else
         {
@@ -69,7 +103,9 @@ public class DungeonBuilder : MonoBehaviour
             ConnectUnusedExits();
         }
 
-        Invoke("FinishDungeon", 0.5f);        
+        //Invoke("FinishDungeon", 0.5f);
+
+        FinishDungeon();
     }
 
     private void FinishDungeon()
@@ -81,6 +117,9 @@ public class DungeonBuilder : MonoBehaviour
         Debug.Log("Items removed: " + itemsMarkedForRemoval + ". Remaining exits: " + unfilledExits.Count);
 
         WallOffRemainingExits();
+
+        DungeonIsReady = true;
+        OnDungeonFinishedBuilding();
     }
 
     protected void GenerateDungeonPieces()
@@ -174,15 +213,9 @@ public class DungeonBuilder : MonoBehaviour
 
     protected void RemoveDeadEnds()
     {
-        Debug.Log("OpenConnectors: " + openConnectorPieces.Count + ". OpenIntersections: " + openIntersectionPieces.Count);
-
         CleanUpOpenList(openConnectorPieces);
 
         CleanUpOpenList(openIntersectionPieces);
-
-        Debug.Log("OpenConnectors: " + openConnectorPieces.Count + ". OpenIntersections: " + openIntersectionPieces.Count);
-
-        Debug.Log("OpenConnectors: " + openConnectorPieces.Count + ". OpenIntersections: " + openIntersectionPieces.Count);
     }
     
     protected void CleanUpOpenList(List<DungeonPiece> listToClean)
