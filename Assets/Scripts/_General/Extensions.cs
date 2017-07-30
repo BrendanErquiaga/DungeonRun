@@ -201,10 +201,21 @@ public static class Extensions
 		Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camera);
 		return GeometryUtility.TestPlanesAABB(planes, renderer.bounds);
 	}
-	#endregion
 
-	#region GameObject
-	public static void SetLayer(this GameObject gameObject, int layer, bool setChildren = false)
+    public static void ApplyMaterialToAllChildRenderers(GameObject gameObject, Material newMaterial)
+    {
+        MeshRenderer[] childRenderers = gameObject.GetComponentsInChildren<MeshRenderer>();
+
+        foreach (MeshRenderer childRenderer in childRenderers)
+        {
+            childRenderer.materials = new Material[0];
+            childRenderer.material = newMaterial;
+        }
+    }
+    #endregion
+
+    #region GameObject
+    public static void SetLayer(this GameObject gameObject, int layer, bool setChildren = false)
 	{
 		gameObject.layer = layer;
 		if (setChildren)

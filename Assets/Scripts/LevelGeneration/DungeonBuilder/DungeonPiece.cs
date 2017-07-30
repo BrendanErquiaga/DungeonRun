@@ -117,21 +117,40 @@ public class DungeonPiece : MonoBehaviour
 
     #region Events
     public delegate void DungeonPieceEvent(DungeonPiece dungeonPiece);
+    public delegate void DungeonPiecePropertyEvent(DungeonPiece dungeonPiece, string property);
     public static event DungeonPieceEvent DungeonPieceSpawned;
     public static event DungeonPieceEvent DungeonPieceDestroyed;
+    public event DungeonPiecePropertyEvent DungeonPropertyAdded;
+    public static event DungeonPiecePropertyEvent AnyPieceDungeonPropertyAdded;
 
-    public static void OnDungeonPieceSpawned(DungeonPiece dungeonPiece)
+    protected static void OnDungeonPieceSpawned(DungeonPiece dungeonPiece)
     {
         DungeonPieceEvent handler = DungeonPieceSpawned;
         if (handler != null)
             handler(dungeonPiece);
     }
 
-    public static void OnDungeonPieceDestroyed(DungeonPiece dungeonPiece)
+    protected static void OnDungeonPieceDestroyed(DungeonPiece dungeonPiece)
     {
         DungeonPieceEvent handler = DungeonPieceDestroyed;
         if (handler != null)
             handler(dungeonPiece);
+    }
+
+    protected void OnDungeonPropertyAdded(DungeonPiece dungeonPiece, string propertyAdded)
+    {
+        DungeonPiecePropertyEvent handler = DungeonPropertyAdded;
+        if (handler != null)
+            handler(dungeonPiece, propertyAdded);
+
+        OnAnyPieceDungeonPropertyAdded(dungeonPiece, propertyAdded);
+    }
+
+    protected static void OnAnyPieceDungeonPropertyAdded(DungeonPiece dungeonPiece, string propertyAdded)
+    {
+        DungeonPiecePropertyEvent handler = AnyPieceDungeonPropertyAdded;
+        if (handler != null)
+            handler(dungeonPiece, propertyAdded);
     }
     #endregion
 
@@ -299,6 +318,7 @@ public class DungeonPiece : MonoBehaviour
         }
 
         this.staticPropertyString = "";
+        OnDungeonPropertyAdded(this, propertyValue);
     }
 
     private void OnDrawGizmosSelected()

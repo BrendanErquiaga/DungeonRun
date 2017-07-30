@@ -2,81 +2,73 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DungeonPiecePropertyGenerator : MonoBehaviour
+public class DungeonPiecePropertyApplicator : MonoBehaviour
 {
     [SerializeField]
     protected DungeonPieceTracker dungeonTracker;
     [SerializeField]
     protected PropertyPool propertyPool;
     [SerializeField]
-    protected string seedProperty = "";
+    protected string propertyKey;
     [SerializeField]
-    protected float chanceOfRepeatProperty = 0.9f;
-    [SerializeField]
-    protected float repeatPropertyDecayRate = 1;//Applies to region chance of repeat after each spawn
-    [SerializeField]
-    private string propertyKey;
+    protected PropertyCollisionBehavior propertyCollisionBehavior;
 
-    protected void Start()
+    protected List<DungeonPiece> uncheckedDungeonPieces;
+    protected List<DungeonPiece> checkedDungeonPieces;
+
+    private void Start()
     {
-        InitRegionGenerator();
+        InitDungeonPiecePropertyApplicator();
     }
 
-    protected virtual void InitRegionGenerator()
+    protected virtual void InitDungeonPiecePropertyApplicator()
     {
-        DungeonBuilder.DungeonFinishedBuilding += DungeonBuilder_DungeonFinishedBuilding;
+
     }
 
-    private void DungeonBuilder_DungeonFinishedBuilding()
-    {
-        GenerateProperties();
-        Debug.Log("Done generating properties for: " + propertyKey);
-    }
-
-    protected virtual void GenerateProperties()
+    public virtual void ApplyPropertiesToAllDungeonPieces()
     {
         DungeonPiece seedPiece = PickSeedPiece();
-        string initialProperty = (seedProperty == "") ? this.propertyPool.GetRandomObjectFromPool() : seedProperty;
+        string initialProperty = this.GetNextProperty();
 
         ApplyPropertyToPiece(initialProperty, seedPiece);
         ApplyPropertyToConnectingPieces(initialProperty, seedPiece);
     }
 
-    List<DungeonPiece> uncheckedDungeonPieces;
-    List<DungeonPiece> checkedDungeonPieces;
+    
     protected virtual void ApplyPropertyToConnectingPieces(string initialProperty, DungeonPiece seedPiece)
     {
         string pieceProperty = initialProperty;
-        uncheckedDungeonPieces = new List<DungeonPiece>();
-        checkedDungeonPieces = new List<DungeonPiece>();
+        this.uncheckedDungeonPieces = new List<DungeonPiece>();
+        this.checkedDungeonPieces = new List<DungeonPiece>();
 
         CheckConnectedPieces(seedPiece);
 
-        while(uncheckedDungeonPieces.Count > 0)
+        while(this.uncheckedDungeonPieces.Count > 0)
         {
-            DungeonPiece pieceToCheck = uncheckedDungeonPieces[0];
+            DungeonPiece pieceToCheck = this.uncheckedDungeonPieces[0];
             pieceProperty = GetNextProperty(pieceProperty);
 
             ApplyPropertyToPiece(pieceProperty, pieceToCheck);
 
             CheckConnectedPieces(pieceToCheck);
 
-            uncheckedDungeonPieces.RemoveAt(0);
+            this.uncheckedDungeonPieces.RemoveAt(0);
         }
     }
 
     protected virtual void CheckConnectedPieces(DungeonPiece centralPiece)
     {
-        if (!checkedDungeonPieces.Contains(centralPiece))
+        if (!this.checkedDungeonPieces.Contains(centralPiece))
         {
-            checkedDungeonPieces.Add(centralPiece);
+            this.checkedDungeonPieces.Add(centralPiece);
         }
         
         foreach (DungeonPiece connectedPiece in GetConnectedPieces(centralPiece))
         {
-            if (!checkedDungeonPieces.Contains(connectedPiece))
+            if (!this.checkedDungeonPieces.Contains(connectedPiece))
             {
-                uncheckedDungeonPieces.Add(connectedPiece);
+                this.uncheckedDungeonPieces.Add(connectedPiece);
             }
         }
     }
@@ -100,9 +92,13 @@ public class DungeonPiecePropertyGenerator : MonoBehaviour
         return this.dungeonTracker.SpawnedDungeonPieces[r];
     }
 
+    protected virtual string GetNextProperty()
+    {
+        return this.propertyPool.GetRandomObjectFromPool();
+    }
+
     protected virtual string GetNextProperty(string previousProperty)
     {
-        //TODO, Make this real...
         return this.propertyPool.GetRandomObjectFromPool();
     }
 
@@ -111,13 +107,36 @@ public class DungeonPiecePropertyGenerator : MonoBehaviour
         if (!piece.PieceProperties.ContainsKey(propertyKey))
         {
             piece.AddProperty(propertyKey, propertyValue);
-            //Debug.Log("I applied this property: " + property + " to this room: " + piece.gameObject.name, piece.gameObject);
         } else
         {
-            //The piece already had that property, should we combine || override || ignore?
-            Debug.LogWarning("The piece already had this property: " + propertyKey + ". I don't know what the collision function is");
+            HandlePropertyCollision(propertyValue, piece);
         }
     }
 
+    protected virtual void HandlePropertyCollision(string propertyValue, DungeonPiece piece)
+    {
+        switch (propertyCollisionBehavior)
+        {
+            case PropertyCollisionBehavior.COMBINE:
+                string combinedProperty = piece.PieceProperties[propertyKey] + " " + propertyValue;
+                piece.AddProperty(propertyKey, combinedProperty);
+                break;
+            case PropertyCollisionBehavior.OVERRIDE:
+                piece.AddProperty(propertyKey, propertyValue);
+                break;
+            case PropertyCollisionBehavior.SKIP:
+                //DO NOTHING
+                break;
+            default:
+                Debug.LogWarning("Unhandled Behavior found");
+                break;
+        }
+    }
+}
 
+public enum PropertyCollisionBehavior
+{
+    SKIP,
+    COMBINE,
+    OVERRIDE    
 }

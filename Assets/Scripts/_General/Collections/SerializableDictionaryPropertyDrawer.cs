@@ -171,4 +171,9 @@ public abstract class DictionaryDrawer<TK, TV> : PropertyDrawer
         }
     }
 }
+[UnityEditor.CustomPropertyDrawer(typeof(PropertyMaterialMap))]
+public class ExtendedSerializableDictionaryPropertyDrawer : DictionaryDrawer<String,Material>
+{
+
+}
 

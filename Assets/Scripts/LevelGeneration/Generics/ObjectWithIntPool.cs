@@ -100,6 +100,24 @@ public class WeightedObjectPool<T1,T2> : MonoBehaviour where T1 : ObjectWithInt<
 
     public virtual T2 GetDifferentRandomObjectFromPool(T2 previousObject)
     {
-        throw new System.NotImplementedException();
+        if(this.ObjectPool.Count == 1)
+        {
+            return this.ObjectPool[0].objectToUse;
+        }
+
+        T2 differentObject = GetRandomObjectFromPool();
+        int count = 0;
+        while(differentObject.Equals(previousObject) && count < 100) 
+        {
+            differentObject = GetRandomObjectFromPool();
+            count++;
+        }
+
+        if(count >= 100)
+        {
+            Debug.LogWarning("Object pool attempted to get a different object 100 times, think about improving performance.");
+        }
+
+        return differentObject;
     }
 }
