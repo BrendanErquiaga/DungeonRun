@@ -7,16 +7,13 @@ public class MaterialPropertyHandler : AnyDungeonPieceBasePropertyHandler
     [SerializeField]
     private PropertyMaterialMap propertyMaterialMap;
 
-    protected override void HandlePropertyAdded(DungeonPiece dungeonPiece, string property)
+    protected override void HandlePropertyAdded(DungeonPiece dungeonPiece, string propertyKey, string property)
     {
-        base.HandlePropertyAdded(dungeonPiece, property);
+        base.HandlePropertyAdded(dungeonPiece, propertyKey, property);
 
-        Extensions.ApplyMaterialToAllChildRenderers(dungeonPiece.gameObject, propertyMaterialMap[property]);
+        if (PropertyKeysMatch(propertyKey) && propertyMaterialMap.ContainsKey(property))
+        {
+            Extensions.ApplyMaterialToAllChildRenderers(dungeonPiece.gameObject, propertyMaterialMap[property]);
+        }        
     }
-}
-
-[System.Serializable]
-public class PropertyMaterialMap : SerializableDictionary<string, Material>
-{
-
 }

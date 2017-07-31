@@ -6,14 +6,9 @@ public class PropertyPool : WeightedObjectPool<ObjectWithInt<string>, string>
 {
     public List<StringWithInt> properties;
 
-    string lastGeneratedProperty = "";
+    string lastGeneratedProperty = "";    
 
-    private void Awake()
-    {
-        InitPropertyPool();
-    }
-
-    protected virtual void InitPropertyPool()
+    protected override void ObjectPoolAwake()
     {
         this.ObjectPool = new List<ObjectWithInt<string>>();
         foreach(StringWithInt property in properties)

@@ -5,16 +5,13 @@ using UnityEngine;
 public class DungeonPiecePropertyApplicator : MonoBehaviour
 {
     [SerializeField]
-    protected DungeonPieceTracker dungeonTracker;
+    protected DungeonPieceFetcher dungeonFetcher;
     [SerializeField]
     protected PropertyPool propertyPool;
     [SerializeField]
     protected string propertyKey;
     [SerializeField]
     protected PropertyCollisionBehavior propertyCollisionBehavior;
-
-    protected List<DungeonPiece> uncheckedDungeonPieces;
-    protected List<DungeonPiece> checkedDungeonPieces;
 
     private void Start()
     {
@@ -28,48 +25,12 @@ public class DungeonPiecePropertyApplicator : MonoBehaviour
 
     public virtual void ApplyPropertiesToAllDungeonPieces()
     {
-        DungeonPiece seedPiece = PickSeedPiece();
-        string initialProperty = this.GetNextProperty();
-
-        ApplyPropertyToPiece(initialProperty, seedPiece);
-        ApplyPropertyToConnectingPieces(initialProperty, seedPiece);
-    }
-
-    
-    protected virtual void ApplyPropertyToConnectingPieces(string initialProperty, DungeonPiece seedPiece)
-    {
-        string pieceProperty = initialProperty;
-        this.uncheckedDungeonPieces = new List<DungeonPiece>();
-        this.checkedDungeonPieces = new List<DungeonPiece>();
-
-        CheckConnectedPieces(seedPiece);
-
-        while(this.uncheckedDungeonPieces.Count > 0)
+        string nextProperty = this.GetNextProperty();
+        while (this.dungeonFetcher.CanFetch)
         {
-            DungeonPiece pieceToCheck = this.uncheckedDungeonPieces[0];
-            pieceProperty = GetNextProperty(pieceProperty);
-
-            ApplyPropertyToPiece(pieceProperty, pieceToCheck);
-
-            CheckConnectedPieces(pieceToCheck);
-
-            this.uncheckedDungeonPieces.RemoveAt(0);
-        }
-    }
-
-    protected virtual void CheckConnectedPieces(DungeonPiece centralPiece)
-    {
-        if (!this.checkedDungeonPieces.Contains(centralPiece))
-        {
-            this.checkedDungeonPieces.Add(centralPiece);
-        }
-        
-        foreach (DungeonPiece connectedPiece in GetConnectedPieces(centralPiece))
-        {
-            if (!this.checkedDungeonPieces.Contains(connectedPiece))
-            {
-                this.uncheckedDungeonPieces.Add(connectedPiece);
-            }
+            nextProperty = GetNextProperty(nextProperty);
+            DungeonPiece nextPiece = this.dungeonFetcher.FetchNextObject();
+            ApplyPropertyToPiece(nextProperty, nextPiece);
         }
     }
 
@@ -87,9 +48,7 @@ public class DungeonPiecePropertyApplicator : MonoBehaviour
 
     protected virtual DungeonPiece PickSeedPiece()
     {
-        int r = Random.Range(0, this.dungeonTracker.SpawnedDungeonPieces.Count);
-
-        return this.dungeonTracker.SpawnedDungeonPieces[r];
+        return this.dungeonFetcher.FetchNextObject();
     }
 
     protected virtual string GetNextProperty()

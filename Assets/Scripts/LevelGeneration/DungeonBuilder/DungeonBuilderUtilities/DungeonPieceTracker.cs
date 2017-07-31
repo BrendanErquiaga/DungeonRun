@@ -19,7 +19,7 @@ public class DungeonPieceTracker : MonoBehaviour
         }
     }
 
-    void Start ()
+    void Awake ()
     {
         SpawnedDungeonPieces = new List<DungeonPiece>();
 

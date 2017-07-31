@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AnyDungeonPieceBasePropertyHandler : MonoBehaviour
 {
+    public string propertyKeyToMatch;
+
     private void Awake()
     {
         InitPropertyHandler();
@@ -14,8 +16,13 @@ public class AnyDungeonPieceBasePropertyHandler : MonoBehaviour
         DungeonPiece.AnyPieceDungeonPropertyAdded += HandlePropertyAdded;
     }
 
-    protected virtual void HandlePropertyAdded(DungeonPiece dungeonPiece, string property)
+    protected virtual void HandlePropertyAdded(DungeonPiece dungeonPiece, string propertyKey,string property)
     {
         
+    }
+
+    protected virtual bool PropertyKeysMatch(string propertyKey)
+    {
+        return this.propertyKeyToMatch == propertyKey;
     }
 }

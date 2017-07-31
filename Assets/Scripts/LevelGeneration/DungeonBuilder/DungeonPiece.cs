@@ -117,11 +117,11 @@ public class DungeonPiece : MonoBehaviour
 
     #region Events
     public delegate void DungeonPieceEvent(DungeonPiece dungeonPiece);
-    public delegate void DungeonPiecePropertyEvent(DungeonPiece dungeonPiece, string property);
+    public delegate void DungeonPiecePropertyEvent(DungeonPiece dungeonPiece, string propertyKey, string property);
     public static event DungeonPieceEvent DungeonPieceSpawned;
-    public static event DungeonPieceEvent DungeonPieceDestroyed;
-    public event DungeonPiecePropertyEvent DungeonPropertyAdded;
+    public static event DungeonPieceEvent DungeonPieceDestroyed;    
     public static event DungeonPiecePropertyEvent AnyPieceDungeonPropertyAdded;
+    public event DungeonPiecePropertyEvent DungeonPropertyAdded;
 
     protected static void OnDungeonPieceSpawned(DungeonPiece dungeonPiece)
     {
@@ -137,20 +137,20 @@ public class DungeonPiece : MonoBehaviour
             handler(dungeonPiece);
     }
 
-    protected void OnDungeonPropertyAdded(DungeonPiece dungeonPiece, string propertyAdded)
+    protected void OnDungeonPropertyAdded(DungeonPiece dungeonPiece, string propertyKey, string propertyAdded)
     {
         DungeonPiecePropertyEvent handler = DungeonPropertyAdded;
         if (handler != null)
-            handler(dungeonPiece, propertyAdded);
+            handler(dungeonPiece, propertyKey, propertyAdded);
 
-        OnAnyPieceDungeonPropertyAdded(dungeonPiece, propertyAdded);
+        OnAnyPieceDungeonPropertyAdded(dungeonPiece, propertyKey, propertyAdded);
     }
 
-    protected static void OnAnyPieceDungeonPropertyAdded(DungeonPiece dungeonPiece, string propertyAdded)
+    protected static void OnAnyPieceDungeonPropertyAdded(DungeonPiece dungeonPiece, string propertyKey, string propertyAdded)
     {
         DungeonPiecePropertyEvent handler = AnyPieceDungeonPropertyAdded;
         if (handler != null)
-            handler(dungeonPiece, propertyAdded);
+            handler(dungeonPiece, propertyKey, propertyAdded);
     }
     #endregion
 
@@ -318,7 +318,7 @@ public class DungeonPiece : MonoBehaviour
         }
 
         this.staticPropertyString = "";
-        OnDungeonPropertyAdded(this, propertyValue);
+        OnDungeonPropertyAdded(this, propertyKey, propertyValue);
     }
 
     private void OnDrawGizmosSelected()

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpreadAndDecayPropertyApplicator : DungeonPiecePropertyApplicator
+public class DecayingPropertyApplicator : DungeonPiecePropertyApplicator
 {
     [SerializeField]
     protected float propertyRepeatChance = 1;
@@ -15,7 +15,6 @@ public class SpreadAndDecayPropertyApplicator : DungeonPiecePropertyApplicator
     {
         base.InitDungeonPiecePropertyApplicator();
         currentRepeatChance = propertyRepeatChance;
-        Debug.Log("meep");
     }
 
     protected override string GetNextProperty(string previousProperty)

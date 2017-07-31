@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class DungeonPieceBasePropertyHandler : MonoBehaviour
 {
-
+    public string propertyKeyToMatch;
     protected DungeonPiece parentDungeonPiece;
 
     private void Awake()
@@ -24,8 +24,13 @@ public class DungeonPieceBasePropertyHandler : MonoBehaviour
         }
     }
 
-    private void HandlePropertyAdded(DungeonPiece dungeonPiece, string property)
+    private void HandlePropertyAdded(DungeonPiece dungeonPiece, string propertyKey, string property)
     {
         
+    }
+
+    protected virtual bool PropertyKeysMatch(string propertyKey)
+    {
+        return this.propertyKeyToMatch == propertyKey;
     }
 }
