@@ -10,6 +10,8 @@ public class SizedPoolPropertyApplicator : DungeonPiecePropertyApplicator
     [SerializeField]
     [Range(1, 1000)]
     protected int maxPoolSize = 10;
+    [SerializeField]
+    protected bool reorderOnPropertyChange = true;
 
     private int nextPoolSize;
     private int currentPoolCount = 0;
@@ -36,7 +38,10 @@ public class SizedPoolPropertyApplicator : DungeonPiecePropertyApplicator
         {
             GenerateNextPoolSize();
             currentPoolCount = 0;
-            this.dungeonFetcher.ReorderListWithNewSeed();
+            if (reorderOnPropertyChange)
+            {
+                this.dungeonFetcher.ReorderListWithNewSeed();
+            }
             return base.GetNextProperty(previousProperty);
         }      
     }

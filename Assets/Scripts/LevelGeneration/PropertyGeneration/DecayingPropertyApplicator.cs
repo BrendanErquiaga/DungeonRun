@@ -9,6 +9,9 @@ public class DecayingPropertyApplicator : DungeonPiecePropertyApplicator
     [SerializeField]
     protected float repeatChanceDecayRate = 1;
 
+    [SerializeField]
+    protected bool reorderOnPropertyChange = true;
+
     protected float currentRepeatChance;
 
     protected override void InitDungeonPiecePropertyApplicator()
@@ -25,6 +28,10 @@ public class DecayingPropertyApplicator : DungeonPiecePropertyApplicator
             return previousProperty;
         } else
         {
+            if (reorderOnPropertyChange)
+            {
+                this.dungeonFetcher.ReorderListWithNewSeed();
+            }
             currentRepeatChance = propertyRepeatChance;
             return this.propertyPool.GetDifferentRandomObjectFromPool(previousProperty);
         }
