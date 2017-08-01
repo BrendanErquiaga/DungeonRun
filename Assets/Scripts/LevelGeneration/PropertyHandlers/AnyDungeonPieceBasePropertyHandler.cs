@@ -6,7 +6,7 @@ public class AnyDungeonPieceBasePropertyHandler : MonoBehaviour
 {
     public string propertyKeyToMatch;
 
-    private void Awake()
+    private void OnEnable()
     {
         InitPropertyHandler();
     }

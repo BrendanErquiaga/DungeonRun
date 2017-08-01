@@ -8,7 +8,8 @@ public class PropertyApplicatorController : MonoBehaviour
     [SerializeField]
     private DungeonPiecePropertyApplicator[] propertyApplicators;
 
-    private void Awake()
+
+    private void OnEnable()
     {
         Init();
     }
