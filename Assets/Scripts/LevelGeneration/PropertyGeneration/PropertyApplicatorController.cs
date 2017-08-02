@@ -26,6 +26,7 @@ public class PropertyApplicatorController : MonoBehaviour
 
     private void ActivateApplicators()
     {
+        Debug.Log("ACTIVATE");
         foreach(DungeonPiecePropertyApplicator propertyApplicator in propertyApplicators)
         {
             propertyApplicator.ApplyPropertiesToAllDungeonPieces();
