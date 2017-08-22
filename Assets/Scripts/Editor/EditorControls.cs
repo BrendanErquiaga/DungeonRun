@@ -10,7 +10,7 @@ public class EditorControls
 {
     private static EditorWindow _mouseOverWindow;
  
-    [MenuItem("Editor Controls/Toggle Lock _`,%`")]
+    [MenuItem("Editor Controls/Toggle Lock %`")]
     static void ToggleInspectorLock()
     {
         if (_mouseOverWindow == null)

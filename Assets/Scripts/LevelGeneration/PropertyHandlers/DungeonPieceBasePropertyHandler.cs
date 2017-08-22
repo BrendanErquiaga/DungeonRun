@@ -24,7 +24,7 @@ public class DungeonPieceBasePropertyHandler : MonoBehaviour
         }
     }
 
-    private void HandlePropertyAdded(DungeonPiece dungeonPiece, string propertyKey, string property)
+    protected virtual void HandlePropertyAdded(DungeonPiece dungeonPiece, string propertyKey, string property)
     {
         
     }

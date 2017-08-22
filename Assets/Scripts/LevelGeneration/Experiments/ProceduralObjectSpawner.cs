@@ -45,6 +45,11 @@ public class ProceduralObjectSpawner : MonoBehaviour
 
     protected virtual void Initialize()
     {
+        InitializeSpawnLocationShuffleBag();
+    }
+
+    protected virtual void InitializeSpawnLocationShuffleBag()
+    {
         if (spawnLocations.Count > 0)
         {
             spawnLocationShufflebag = new ShuffleBag<Transform>(spawnLocations, true);
@@ -53,6 +58,11 @@ public class ProceduralObjectSpawner : MonoBehaviour
         {
             spawnLocationShufflebag = new ShuffleBag<Transform>(new List<Transform>());
         }
+    }
+
+    public virtual void AddNewSpawnLocations(List<Transform> newSpawnLocations) {
+        this.spawnLocations = newSpawnLocations;
+        InitializeSpawnLocationShuffleBag();
     }
 
     public virtual void SpawnObject()
@@ -94,9 +104,9 @@ public class ProceduralObjectSpawner : MonoBehaviour
 
     protected virtual Vector3 GetRandomForce()
     {
-        float x = Random.Range(0, randomForce);
-        float y = Random.Range(0, randomForce);
-        float z = Random.Range(0, randomForce);
+        float x = Random.Range(-randomForce, randomForce);
+        float y = Random.Range(-randomForce, randomForce);
+        float z = Random.Range(-randomForce, randomForce);
 
         return new Vector3(x, y, z);
     }

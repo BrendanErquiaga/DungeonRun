@@ -41,6 +41,26 @@ public class Utilities : MonoBehaviour
 		for (int index = 0; index < target.childCount; index++)
 			RecursivelySetChildrensRenderersColor(target.GetChild(index), color);
 	}
+
+    public static T GetObjectOfType<T>(GameObject gameObjectToCheck)
+    {
+        T component = gameObjectToCheck.GetComponent<T>();
+
+        if (component != null)
+        {
+            return component;
+        } else
+        {
+            ScriptReferencer<T> scriptReferencer = gameObjectToCheck.GetComponent<ScriptReferencer<T>>();
+
+            if(scriptReferencer != null)
+            {
+                return scriptReferencer.ScriptReference;
+            }
+        }
+
+        return default(T);
+    }
 	
 	#region PlayerPrefs
 	public static void SetPlayerPrefsBool(string name, bool booleanValue) 

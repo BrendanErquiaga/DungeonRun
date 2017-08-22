@@ -63,6 +63,7 @@ public class DungeonPieceFetcher : MonoBehaviour
     protected virtual void InitFetcher()
     {
         fetchedPieces = new List<DungeonPiece>();
+        unfetchedPieces = new LinkedList<DungeonPiece>();
         BuildUnfetchedList();
 
         fetcherInitialized = true;
@@ -77,7 +78,14 @@ public class DungeonPieceFetcher : MonoBehaviour
     {
         foreach (DungeonPiece dungeonPiece in listToBuildFrom)
         {
-            unfetchedPieces.AddFirst(dungeonPiece);
+            if(dungeonPiece != null)
+            {
+                unfetchedPieces.AddFirst(dungeonPiece);
+            } else
+            {
+                Debug.LogError("Can't add a piece that doesn't exist...");
+            }
+            
         }
     }
 }
